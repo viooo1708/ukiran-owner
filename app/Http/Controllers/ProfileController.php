@@ -19,31 +19,25 @@ class ProfileController extends Controller
      * Menampilkan halaman profil.
      */
     public function index()
-    {
-        try {
+{
+    try {
 
-            $response = $this->api->get('/profile');
+        $response = $this->api->get('/users');
 
-            if (!$response->successful()) {
-
-                return redirect()
-                    ->back()
-                    ->with('error', 'Gagal mengambil data profil.');
-
-            }
-
-            $profile = $response->json()['data'];
-
-            return view('profile.index', compact('profile'));
-
-        } catch (\Exception $e) {
-
-            return redirect()
-                ->back()
-                ->with('error', 'Backend API tidak dapat dihubungi.');
-
+        if (!$response->successful()) {
+            return back()->with('error', 'Gagal mengambil data pelanggan.');
         }
+
+        $users = $response->json()['data'];
+
+        return view('profile.index', compact('users'));
+
+    } catch (\Exception $e) {
+
+        return back()->with('error', 'Backend API tidak dapat dihubungi.');
+
     }
+}
 
     /**
      * Update profil owner.
@@ -114,5 +108,25 @@ class ProfileController extends Controller
                 ->with('error', 'Backend API tidak dapat dihubungi.');
 
         }
+    }
+
+    public function show($id)
+    {
+        //
+    }
+
+    public function edit($id)
+    {
+        //
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        //
+    }
+
+    public function destroy($id)
+    {
+        //
     }
 }

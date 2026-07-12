@@ -1,295 +1,254 @@
 @extends('layouts.app')
+
 @section('title', 'Dashboard')
+
 @section('content')
 
-<div class="max-w-7xl mx-auto p-8">
-    {{-- Header --}}
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">
-            Ringkasan Operasional
-        </h1>
-        <p class="text-gray-500 mt-2">
-            Selamat datang kembali,
-            <strong>{{ session('user.nama') ?? session('user.name') }}</strong>
-        </p>
-    </div>
+<div class="max-w-[1600px] mx-auto space-y-8">
 
-    {{-- Statistik --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
-
-        {{-- Total Pesanan --}}
-        <div class="bg-white rounded-2xl border shadow-sm p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-gray-500">
-                        Total Pesanan
-                    </p>
-                    <h2 class="text-4xl font-bold mt-3 text-amber-800">
-                        {{ $ringkasan['total_pesanan'] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="w-14 h-14 rounded-xl bg-amber-100 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-amber-700">
-                        shopping_cart
-                    </span>
-                </div>
-            </div>
+    {{-- Header Section --}}
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#3e2723] tracking-tight">
+                Ringkasan Operasional
+            </h1>
+            <p class="text-sm sm:text-base text-gray-500 mt-1">
+                Selamat datang kembali,
+                <span class="font-bold text-[#5d4037]">
+                    {{ session('user.nama') ?? session('user.name','Owner') }}
+                </span>
+            </p>
         </div>
 
-        {{-- Diproses --}}
-        <div class="bg-white rounded-2xl shadow-sm border p-6">
-            <div class="flex justify-between">
-                <div>
-                    <p class="text-gray-500">
-                        Diproses
-                    </p>
-                    <h2 class="text-4xl font-bold mt-3 text-blue-600">
-                        {{ $ringkasan['total_diproses'] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-blue-700">
-                        precision_manufacturing
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        {{-- Selesai --}}
-        <div class="bg-white rounded-2xl shadow-sm border p-6">
-            <div class="flex justify-between">
-                <div>
-                    <p class="text-gray-500">
-                        Selesai
-                    </p>
-                    <h2 class="text-4xl font-bold mt-3 text-green-600">
-                        {{ $ringkasan['total_selesai'] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-green-700">
-                        task_alt
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        {{-- Dibatalkan --}}
-        <div class="bg-white rounded-2xl shadow-sm border p-6">
-            <div class="flex justify-between">
-                <div>
-                    <p class="text-gray-500">
-                        Dibatalkan
-                    </p>
-                    <h2 class="text-4xl font-bold mt-3 text-red-600">
-                        {{ $ringkasan['total_dibatalkan'] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-red-700">
-                        cancel
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        {{-- Pendapatan --}}
-        <div class="bg-white rounded-2xl shadow-sm border p-6">
-            <div class="flex justify-between">
-                <div>
-                    <p class="text-gray-500">
-                        Estimasi Pendapatan
-                    </p>
-                    <h2 class="text-2xl font-bold mt-3 text-emerald-700">
-                        Rp {{ number_format($ringkasan['total_pendapatan_estimasi'] ?? 0,0,',','.') }}
-                    </h2>
-                </div>
-                <div class="w-14 h-14 rounded-xl bg-emerald-100 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-emerald-700">
-                        payments
-                    </span>
-                </div>
+        {{-- Date Badge --}}
+        <div class="flex items-center gap-3 bg-white border border-[#eadfd8] px-4 py-2.5 rounded-xl shadow-sm self-start md:self-auto">
+            <span class="material-symbols-outlined text-[#6d4c41]">calendar_today</span>
+            <div>
+                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider leading-none">
+                    Hari Ini
+                </p>
+                <p class="text-sm font-bold text-[#5d4037] leading-tight mt-0.5">
+                    {{ now()->translatedFormat('d F Y') }}
+                </p>
             </div>
         </div>
     </div>
 
-    {{-- Layout bawah --}}
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
-        {{-- Tabel Pesanan --}}
-        <div class="xl:col-span-2 bg-white rounded-2xl border shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold">
-                    Pesanan Terbaru
-                </h3>
+
+    {{-- Cards Grid Statistik --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        @php
+            $cards = [
+                [
+                    'title' => 'Total Pesanan',
+                    'value' => $ringkasan['total_pesanan'] ?? 0,
+                    'icon'  => 'shopping_bag',
+                    'bg'    => 'bg-amber-50 text-amber-800'
+                ],
+                [
+                    'title' => 'Diproses',
+                    'value' => $ringkasan['total_diproses'] ?? 0,
+                    'icon'  => 'precision_manufacturing',
+                    'bg'    => 'bg-blue-50 text-blue-800'
+                ],
+                [
+                    'title' => 'Selesai',
+                    'value' => $ringkasan['total_selesai'] ?? 0,
+                    'icon'  => 'task_alt',
+                    'bg'    => 'bg-emerald-50 text-emerald-800'
+                ],
+                [
+                    'title' => 'Dibatalkan',
+                    'value' => $ringkasan['total_dibatalkan'] ?? 0,
+                    'icon'  => 'cancel',
+                    'bg'    => 'bg-rose-50 text-rose-800'
+                ],
+                [
+                    'title' => 'Estimasi Pendapatan',
+                    'value' => 'Rp ' . number_format($ringkasan['total_pendapatan_estimasi'] ?? 0, 0, ',', '.'),
+                    'icon'  => 'payments',
+                    'bg'    => 'bg-[#efebe9] text-[#5d4037]'
+                ]
+            ];
+        @endphp
+
+        @foreach($cards as $card)
+        <div class="bg-white border border-[#eadfd8] rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between">
+            <div class="flex items-start justify-between gap-3">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {{ $card['title'] }}
+                </p>
+                <div class="w-10 h-10 rounded-xl {{ $card['bg'] }} flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-xl">
+                        {{ $card['icon'] }}
+                    </span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h2 class="text-2xl xl:text-3xl font-extrabold text-[#3e2723] tracking-tight truncate">
+                    {{ $card['value'] }}
+                </h2>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+
+    {{-- Main Dashboard Layout --}}
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+
+        {{-- Tabel Pesanan Terbaru --}}
+        <div class="xl:col-span-2 bg-white rounded-2xl border border-[#eadfd8] shadow-sm overflow-hidden">
+
+            {{-- Header Table --}}
+            <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-white">
+                <div>
+                    <h3 class="font-bold text-lg text-[#3e2723]">
+                        Pesanan Terbaru
+                    </h3>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                        Daftar pesanan transaksi masuk terbaru
+                    </p>
+                </div>
                 <a href="{{ route('orders.index') }}"
-                   class="text-amber-700 font-semibold hover:text-amber-900 transition">
-                    Lihat Semua →
+                   class="inline-flex items-center gap-1 text-xs font-bold text-[#6d4c41] hover:text-[#3e2723] transition-colors">
+                    Lihat Semua
+                    <span class="material-symbols-outlined text-sm">chevron_right</span>
                 </a>
             </div>
+
+            {{-- Table Body --}}
             <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50 text-gray-700">
-                        <tr>
-                            <th class="p-4 text-left font-semibold">ID</th>
-                            <th class="p-4 text-left font-semibold">Pelanggan</th>
-                            <th class="p-4 text-left font-semibold">Produk</th>
-                            <th class="p-4 text-left font-semibold">Status</th>
-                            <th class="p-4 text-right font-semibold">Aksi</th>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-[#faf7f4] text-gray-500 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
+                            <th class="py-3.5 px-6">ID</th>
+                            <th class="py-3.5 px-6">Pelanggan</th>
+                            <th class="py-3.5 px-6">Produk</th>
+                            <th class="py-3.5 px-6">Status</th>
+                            <th class="py-3.5 px-6 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
-                    @forelse($orders as $order)
-                        <tr class="border-t hover:bg-gray-50 transition-colors">
-                            <td class="p-4">
+                    <tbody class="divide-y divide-gray-100 text-sm">
+                        @forelse($orders as $order)
+                        <tr class="hover:bg-[#faf7f4]/60 transition-colors">
+                            <td class="py-4 px-6 font-bold text-[#5d4037]">
                                 #{{ $order['id'] }}
                             </td>
-                            <td class="p-4">
+                            <td class="py-4 px-6 font-medium text-gray-800">
                                 {{ $order['user']['nama'] ?? '-' }}
                             </td>
-                            <td class="p-4">
+                            <td class="py-4 px-6 text-gray-600">
                                 {{ $order['product']['nama_product'] ?? '-' }}
                             </td>
-                            <td class="p-4">
+                            <td class="py-4 px-6">
                                 @php
-                                    $status = strtolower($order['status_pesanan']);
-                                    $badge = match($status){
-                                        'selesai' => 'bg-green-100 text-green-700',
-                                        'diproses' => 'bg-blue-100 text-blue-700',
-                                        'dibatalkan' => 'bg-red-100 text-red-700',
-                                        default => 'bg-yellow-100 text-yellow-700',
+                                    $status = strtolower($order['status_pesanan'] ?? '');
+                                    $badgeStyle = match(true) {
+                                        str_contains($status, 'selesai') => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                        str_contains($status, 'proses')  => 'bg-blue-50 text-blue-700 border-blue-200',
+                                        str_contains($status, 'batal')   => 'bg-rose-50 text-rose-700 border-rose-200',
+                                        default => 'bg-amber-50 text-amber-700 border-amber-200',
                                     };
                                 @endphp
-                                <span class="px-3 py-1 rounded-full text-sm {{ $badge }}">
-                                    {{ ucfirst(str_replace('_',' ',$status)) }}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border {{ $badgeStyle }}">
+                                    {{ ucfirst(str_replace('_', ' ', $order['status_pesanan'])) }}
                                 </span>
                             </td>
-                            <td class="p-4 text-right">
-                                <a
-                                    href="{{ route('orders.show',$order['id']) }}"
-                                    class="inline-flex items-center px-4 py-2 rounded-lg bg-amber-700 text-white hover:bg-amber-800 transition">
+                            <td class="py-4 px-6 text-center">
+                                <a href="{{ route('orders.show', $order['id']) }}"
+                                   class="inline-flex items-center justify-center px-3.5 py-1.5 bg-[#5d4037] hover:bg-[#3e2723] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
                                     Detail
                                 </a>
                             </td>
                         </tr>
-                    @empty
+                        @empty
                         <tr>
-                            <td colspan="5" class="text-center py-10 text-gray-500">
-                                Belum ada pesanan.
+                            <td colspan="5" class="py-12 text-center text-gray-400">
+                                <span class="material-symbols-outlined text-4xl block mb-2 text-gray-300">inbox</span>
+                                Belum ada data pesanan terbaru.
                             </td>
                         </tr>
-                    @endforelse
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
 
-        {{-- Widget Sebelah Kanan --}}
+
+        {{-- Sidebar Kanan: Produksi & Aktivitas --}}
         <div class="space-y-6">
 
-            {{-- Status Produksi --}}
-            <div class="bg-white rounded-2xl border shadow-sm p-6">
-                <h3 class="text-xl font-bold mb-6">
-                    Status Produksi
+            {{-- Progress Produksi Card --}}
+            <div class="bg-white rounded-2xl border border-[#eadfd8] p-6 shadow-sm">
+                <h3 class="font-bold text-lg text-[#3e2723] mb-4">
+                    Progress Produksi
                 </h3>
-                <div class="space-y-5">
+
+                <div class="space-y-4">
+                    @foreach([
+                        ['name' => 'Pahatan', 'value' => 75],
+                        ['name' => 'Finishing', 'value' => 90],
+                        ['name' => 'Perakitan', 'value' => 40]
+                    ] as $item)
                     <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span>Pahatan</span>
-                            <span>75%</span>
+                        <div class="flex justify-between text-xs font-medium text-gray-600 mb-1.5">
+                            <span>{{ $item['name'] }}</span>
+                            <span class="font-bold text-[#5d4037]">{{ $item['value'] }}%</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-amber-700 h-2 rounded-full w-3/4"></div>
+                        <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-[#8d6e63] rounded-full transition-all duration-500" style="width: {{ $item['value'] }}%"></div>
                         </div>
                     </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span>Finishing</span>
-                            <span>90%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-600 h-2 rounded-full w-[90%]"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span>Perakitan</span>
-                            <span>40%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-600 h-2 rounded-full w-[40%]"></div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
-            {{-- Informasi Workshop --}}
-            <div class="bg-white rounded-2xl border shadow-sm p-6">
-                <h3 class="text-xl font-bold mb-4">
+            {{-- Aktivitas Workshop Card --}}
+            <div class="bg-white rounded-2xl border border-[#eadfd8] p-6 shadow-sm">
+                <h3 class="font-bold text-lg text-[#3e2723] mb-5">
                     Aktivitas Workshop
                 </h3>
-                <div class="space-y-4">
-                    <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                            <span class="material-symbols-outlined">
-                                carpenter
-                            </span>
+
+                <div class="relative space-y-6 before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-gray-100">
+
+                    {{-- Activity Item 1 --}}
+                    <div class="relative flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-[#efebe9] border border-white text-[#6d4c41] flex items-center justify-center shrink-0 z-10 shadow-sm">
+                            <span class="material-symbols-outlined text-xl">carpenter</span>
                         </div>
-                        <div>
-                            <p class="font-semibold">
+                        <div class="pt-0.5">
+                            <p class="text-sm font-semibold text-gray-800">
                                 Pesanan baru masuk
                             </p>
-                            <p class="text-gray-500 text-sm">
-                                Menunggu konfirmasi Owner.
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                Menunggu konfirmasi owner
                             </p>
                         </div>
                     </div>
-                    <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                            <span class="material-symbols-outlined">
-                                inventory
-                            </span>
+
+                    {{-- Activity Item 2 --}}
+                    <div class="relative flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-[#efebe9] border border-white text-[#6d4c41] flex items-center justify-center shrink-0 z-10 shadow-sm">
+                            <span class="material-symbols-outlined text-xl">inventory_2</span>
                         </div>
-                        <div>
-                            <p class="font-semibold">
-                                Kayu Jati tersedia
+                        <div class="pt-0.5">
+                            <p class="text-sm font-semibold text-gray-800">
+                                Bahan baku tersedia
                             </p>
-                            <p class="text-gray-500 text-sm">
-                                Persediaan gudang masih aman.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                            <span class="material-symbols-outlined">
-                                local_shipping
-                            </span>
-                        </div>
-                        <div>
-                            <p class="font-semibold">
-                                Pengiriman hari ini
-                            </p>
-                            <p class="text-gray-500 text-sm">
-                                3 pesanan siap dikirim.
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                Stok kayu Jati terpantau aman
                             </p>
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            {{-- Banner --}}
-            <div class="bg-gradient-to-br from-amber-700 to-amber-900 rounded-2xl p-6 text-white shadow">
-                <h3 class="text-xl font-bold">
-                    Restock Bahan Baku
-                </h3>
-                <p class="mt-3 text-amber-100">
-                    Kayu Mahoni, Jati, dan Sonokeling telah tersedia di gudang.
-                </p>
-                <a href="{{ route('products.index') }}"
-                   class="inline-block mt-5 px-5 py-3 rounded-xl bg-white text-amber-800 font-semibold">
-                    Lihat Produk
-                </a>
-            </div>
         </div>
+
     </div>
+
 </div>
+
 @endsection

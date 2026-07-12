@@ -6,6 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -43,9 +44,30 @@ Route::middleware('owner')->group(function () {
     //     ->name('reports.export.csv');
     // Route::get('/reports/export/print', [ReportController::class, 'exportPrint'])
     //     ->name('reports.export.print');
+    /*
+    |--------------------------------------------------------------------------
+    | Profil Owner
+    |--------------------------------------------------------------------------
+    */
     Route::get('/profile', [ProfileController::class, 'index'])
         ->name('profile.index');
+
     Route::put('/profile', [ProfileController::class, 'update'])
         ->name('profile.update');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Kelola Pelanggan
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('users', UserController::class)
+        ->only([
+            'index',
+            'show',
+            'edit',
+            'update',
+            'destroy'
+        ]);
+
     Route::post('/logout', [AuthController::class, 'logout']);
 });

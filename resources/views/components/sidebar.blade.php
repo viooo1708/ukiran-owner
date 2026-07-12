@@ -1,4 +1,4 @@
-<aside
+<!-- <aside
     class="fixed left-0 top-0 h-screen w-72 bg-[#f8f6f3] border-r border-[#ded5ce] shadow-sm flex flex-col z-50">
 
 
@@ -114,27 +114,38 @@
 
 
 
-        {{-- Profil --}}
-        <a href="{{ route('profile.index') }}"
-            class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-
-            {{ request()->routeIs('profile.*')
-                ? 'bg-[#fed488] text-[#5d4037] shadow-sm font-semibold'
-                : 'text-gray-700 hover:bg-[#ebe6df]' }}">
+        {{-- Pelanggan --}}
+        <a href="{{ route('users.index') }}"
+        class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+        {{ request()->routeIs('users.*')
+        ? 'bg-[#fed488] text-[#5d4037] shadow-sm font-semibold'
+        : 'text-gray-700 hover:bg-[#ebe6df]' }}">
 
             <span class="material-symbols-outlined">
-                person
+                groups
             </span>
 
-            Profil
+            Pelanggan
 
         </a>
 
 
+        {{-- Profil Saya --}}
+        <a href="{{ route('profile.index') }}"
+        class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+        {{ request()->routeIs('profile.*')
+        ? 'bg-[#fed488] text-[#5d4037] shadow-sm font-semibold'
+        : 'text-gray-700 hover:bg-[#ebe6df]' }}">
+
+            <span class="material-symbols-outlined">
+                account_circle
+            </span>
+
+            Profil Saya
+
+        </a>
+
     </nav>
-
-
-
 
     {{-- User Card --}}
     <div class="p-5 border-t border-[#ded5ce]">
@@ -211,4 +222,4 @@
     </div>
 
 
-</aside>
+</aside> -->
