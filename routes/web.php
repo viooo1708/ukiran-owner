@@ -32,6 +32,7 @@ Route::middleware('owner')->group(function () {
             'edit',
             'update'
     ]);
+    Route::put('/orders/{id}/update-production', [OrderController::class, 'updateProduction'])->name('orders.update-production');
     Route::get('/reports', [ReportController::class, 'index'])
         ->name('reports.index');
     // Route::get('/reports/export', [ReportController::class, 'export'])

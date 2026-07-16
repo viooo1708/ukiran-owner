@@ -98,6 +98,29 @@ class OrderController extends Controller
         }
     }
 
+    public function updateProduction(Request $request, $id)
+    {
+        $request->validate([
+            'tahap_produksi' => 'required|in:belum_mulai,pahatan,perakitan,finishing'
+        ]);
+
+        try {
+            // Kirim perubahan status produksi ke Backend API Anda
+            $response = $this->api->put("/orders/{$id}/production-status", [
+                'tahap_produksi' => $request->tahap_produksi
+            ]);
+
+            if ($response->successful()) {
+                return redirect()->back()->with('success', 'Tahap produksi berhasil diperbarui!');
+            }
+
+            return redirect()->back()->with('error', 'Gagal memperbarui tahap produksi di server.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem koneksi API.');
+        }
+    }
+
     /**
      * Update status pesanan.
      */
@@ -107,29 +130,23 @@ class OrderController extends Controller
             'status_pesanan' => 'required|in:menunggu_konfirmasi,diproses,dibatalkan,selesai',
             'estimasi_biaya' => 'nullable|numeric',
             'estimasi_waktu' => 'nullable|string|max:100',
-            'catatan' => 'nullable|string',
+            'tahap_produksi' => 'nullable|in:belum_mulai,pahatan,perakitan,finishing,selesai', // Tambahkan ini agar tidak lolos dari request
+            'catatan'        => 'nullable|string',
         ]);
 
         try {
-
             $response = $this->api->put("/orders/$id", [
-
                 'status_pesanan' => $request->status_pesanan,
-
                 'estimasi_biaya' => $request->estimasi_biaya,
-
                 'estimasi_waktu' => $request->estimasi_waktu,
-
-                'catatan' => $request->catatan,
-
+                'tahap_produksi' => $request->tahap_produksi,
+                'catatan'        => $request->catatan,
             ]);
 
             if (!$response->successful()) {
-
                 return back()
                     ->withInput()
                     ->with('error', 'Pesanan gagal diperbarui.');
-
             }
 
             return redirect()
@@ -137,11 +154,10 @@ class OrderController extends Controller
                 ->with('success', 'Status pesanan berhasil diperbarui.');
 
         } catch (\Exception $e) {
-
+            // Mengganti dd() dengan redirect back yang aman agar user tidak melihat halaman error mentah
             return back()
                 ->withInput()
-                ->with('error', 'Backend API tidak dapat dihubungi.');
-
+                ->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
     }
 }

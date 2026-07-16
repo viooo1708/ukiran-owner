@@ -20,52 +20,42 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         try {
-
             $query = [];
 
-            if ($request->filled('dari')) {
-                $query['dari'] = $request->dari;
+            // KOREKSI: Tangkap "tanggal_mulai" dari Blade, lalu masukkan sebagai "dari" untuk API
+            if ($request->filled('tanggal_mulai')) {
+                $query['dari'] = $request->tanggal_mulai;
             }
 
-            if ($request->filled('sampai')) {
-                $query['sampai'] = $request->sampai;
+            // KOREKSI: Tangkap "tanggal_selesai" dari Blade, lalu masukkan sebagai "sampai" untuk API
+            if ($request->filled('tanggal_selesai')) {
+                $query['sampai'] = $request->tanggal_selesai;
             }
 
             $response = $this->api->get('/reports/summary', $query);
 
             if (!$response->successful()) {
-
                 return view('reports.index', [
                     'ringkasan' => [],
                     'orders' => [],
                 ])->with('error', 'Gagal mengambil data laporan.');
-
             }
 
             $data = $response->json();
 
             return view('reports.index', [
-
                 'ringkasan' => $data['ringkasan'] ?? [],
-
                 'orders' => $data['data'] ?? [],
-
-                'dari' => $request->dari,
-
-                'sampai' => $request->sampai,
-
+                // KOREKSI: Kembalikan nilai ke Blade agar input tanggal tidak ter-reset setelah submit
+                'tanggal_mulai' => $request->tanggal_mulai,
+                'tanggal_selesai' => $request->tanggal_selesai,
             ]);
 
         } catch (\Exception $e) {
-
             return view('reports.index', [
-
                 'ringkasan' => [],
-
                 'orders' => [],
-
             ])->with('error', 'Backend API tidak dapat dihubungi.');
-
         }
     }
 }

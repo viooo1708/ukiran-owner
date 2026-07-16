@@ -3,8 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-
-<div class="max-w-[1600px] mx-auto space-y-8">
+<div class="max-w-[1600px] mx-auto space-y-8 animate-fade-in">
 
     {{-- Header Section --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -15,7 +14,7 @@
             <p class="text-sm sm:text-base text-gray-500 mt-1">
                 Selamat datang kembali,
                 <span class="font-bold text-[#5d4037]">
-                    {{ session('user.nama') ?? session('user.name','Owner') }}
+                    {{ session('user.nama') ?? session('user.name', 'Owner') }}
                 </span>
             </p>
         </div>
@@ -33,7 +32,6 @@
             </div>
         </div>
     </div>
-
 
     {{-- Cards Grid Statistik --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
@@ -92,7 +90,6 @@
         </div>
         @endforeach
     </div>
-
 
     {{-- Main Dashboard Layout --}}
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
@@ -175,22 +172,18 @@
             </div>
         </div>
 
-
         {{-- Sidebar Kanan: Produksi & Aktivitas --}}
         <div class="space-y-6">
 
             {{-- Progress Produksi Card --}}
             <div class="bg-white rounded-2xl border border-[#eadfd8] p-6 shadow-sm">
                 <h3 class="font-bold text-lg text-[#3e2723] mb-4">
-                    Progress Produksi
+                    Progress Profil Produksi
                 </h3>
 
                 <div class="space-y-4">
-                    @foreach([
-                        ['name' => 'Pahatan', 'value' => 75],
-                        ['name' => 'Finishing', 'value' => 90],
-                        ['name' => 'Perakitan', 'value' => 40]
-                    ] as $item)
+                    {{-- Sekarang memakai data dinamis dari Controller --}}
+                    @foreach($progressProduksi as $item)
                     <div>
                         <div class="flex justify-between text-xs font-medium text-gray-600 mb-1.5">
                             <span>{{ $item['name'] }}</span>
@@ -248,7 +241,5 @@
         </div>
 
     </div>
-
 </div>
-
 @endsection

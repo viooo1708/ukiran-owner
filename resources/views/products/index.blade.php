@@ -2,7 +2,7 @@
 @section('title', 'Produk')
 @section('content')
 
-<div class="max-w-[1600px] mx-auto space-y-8">
+<div class="max-w-[1600px] mx-auto space-y-8 animate-fade-in">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -20,20 +20,6 @@
             Tambah Produk
         </a>
     </div>
-
-    {{-- Alert Notifications --}}
-    @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-xl flex items-center gap-3 shadow-sm animate-fade-in">
-            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
-            <p class="text-sm font-medium">{{ session('success') }}</p>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-xl flex items-center gap-3 shadow-sm">
-            <span class="material-symbols-outlined text-red-600">error</span>
-            <p class="text-sm font-medium">{{ session('error') }}</p>
-        </div>
-    @endif
 
     {{-- Main Container Card --}}
     <div class="bg-white rounded-2xl border border-[#eadfd8] shadow-sm overflow-hidden">
@@ -79,11 +65,11 @@
                     @forelse($products as $product)
                     <tr class="product-row hover:bg-[#fbfbf9]/70 transition-colors duration-150 cursor-pointer"
                         data-nama="{{ $product['nama_product'] }}"
-                        data-jenis="{{ $product['jenis_ukiran'] }}"
+                        data-jenis="{{ $product['jenis_ukiran'] ?? 'Tidak Spesifik' }}"
                         data-ukuran="{{ $product['ukuran'] ?? 'Custom Order' }}"
-                        data-bahan="{{ $product['bahan'] }}"
+                        data-bahan="{{ $product['bahan'] ?? 'Tidak Spesifik' }}"
                         data-motif="{{ $product['motif'] ?? 'Klasik Tradisional' }}"
-                        data-harga="Rp {{ number_format($product['estimasi_harga'],0,',','.') }}"
+                        data-harga="Rp {{ number_format($product['estimasi_harga'], 0, ',', '.') }}"
                         data-deskripsi="{{ $product['deskripsi'] ?? 'Tidak ada deskripsi produk.' }}"
                         data-gambar="{{ $product['gambar'] }}">
 
@@ -125,7 +111,7 @@
 
                         {{-- Pricing Column --}}
                         <td class="py-4 px-6 font-bold text-[#5d4037]">
-                            Rp {{ number_format($product['estimasi_harga'],0,',','.') }}
+                            Rp {{ number_format($product['estimasi_harga'], 0, ',', '.') }}
                         </td>
 
                         {{-- Actions Group Column --}}
@@ -133,7 +119,7 @@
                             <div class="flex justify-center gap-1.5">
                                 {{-- Edit --}}
                                 <a onclick="event.stopPropagation();"
-                                   href="{{ route('products.edit',$product['id']) }}"
+                                   href="{{ route('products.edit', $product['id']) }}"
                                    class="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-50 border border-gray-200 text-gray-500 hover:text-[#5d4037] hover:border-[#5d4037]/30 hover:bg-[#faf7f4] transition-all"
                                    title="Ubah Data">
                                     <span class="material-symbols-outlined text-lg">edit</span>
@@ -141,7 +127,7 @@
 
                                 {{-- Delete --}}
                                 <form onclick="event.stopPropagation();"
-                                      action="{{ route('products.destroy',$product['id']) }}"
+                                      action="{{ route('products.destroy', $product['id']) }}"
                                       method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -179,51 +165,60 @@
             <span class="material-symbols-outlined text-xl">close</span>
         </button>
 
-        {{-- Left: Media Canvas Container --}}
-        <div class="md:col-span-5 bg-gray-50 border-b md:border-b-0 md:border-r border-[#eadfd8] flex items-center justify-center min-h-[300px] md:min-h-[500px]">
-            <img id="modalImage" src="" class="w-full h-full object-cover">
+        {{-- Left Side: Foto / Media Canvas Container --}}
+        <div class="md:col-span-5 bg-stone-100 border-b md:border-b-0 md:border-r border-[#eadfd8] flex items-center justify-center min-h-[300px] md:min-h-[520px] p-4">
+            <img id="modalImage" src="" class="max-w-full max-h-[250px] md:max-h-[480px] w-auto h-auto object-contain rounded-xl shadow-sm" alt="Foto Produk">
         </div>
 
-        {{-- Right: Technical Product Matrix Specs --}}
-        <div class="md:col-span-7 p-6 md:p-8 flex flex-col justify-between overflow-y-auto max-h-[50vh] md:max-h-[500px]">
+        {{-- Right Side: Comprehensive Product Specifications Matrix --}}
+        <div class="md:col-span-7 p-6 md:p-8 flex flex-col justify-between overflow-y-auto max-h-[60vh] md:max-h-[520px]">
             <div class="space-y-6">
+                {{-- Header Identitas --}}
                 <div>
-                    <span id="modalJenis" class="inline-flex px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 ring-1 ring-amber-600/10 uppercase tracking-wider"></span>
-                    <h2 id="modalNama" class="text-2xl font-bold text-[#3e2723] tracking-tight mt-2.5"></h2>
+                    <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400 block mb-1">Nama Produk</span>
+                    <h2 id="modalNama" class="text-2xl font-bold text-[#3e2723] tracking-tight"></h2>
                 </div>
 
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4 bg-[#faf8f5] p-4 rounded-xl border border-[#eadfd8]">
+                {{-- Technical Spec Grid (6 Data Properties) --}}
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4 bg-[#faf8f5] p-5 rounded-xl border border-[#eadfd8]">
                     <div>
-                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Ukuran Dimensi</p>
-                        <p id="modalUkuran" class="font-bold text-gray-700 text-sm mt-0.5"></p>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jenis Ukiran</p>
+                        <p id="modalJenis" class="font-semibold text-gray-800 text-sm mt-0.5"></p>
                     </div>
+
                     <div>
-                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Jenis Kayu / Material</p>
-                        <p id="modalBahan" class="font-bold text-gray-700 text-sm mt-0.5"></p>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Ukuran / Dimensi</p>
+                        <p id="modalUkuran" class="font-semibold text-gray-800 text-sm mt-0.5"></p>
                     </div>
+
                     <div class="col-span-2 border-t border-gray-200/60 pt-3">
-                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Pola Ornamen / Motif</p>
-                        <p id="modalMotif" class="font-bold text-gray-700 text-sm mt-0.5"></p>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Bahan / Material Utama</p>
+                        <p id="modalBahan" class="font-semibold text-gray-800 text-sm mt-0.5"></p>
+                    </div>
+
+                    <div class="col-span-2 border-t border-gray-200/60 pt-3">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Pola Ornamen / Motif</p>
+                        <p id="modalMotif" class="font-semibold text-gray-800 text-sm mt-0.5"></p>
                     </div>
                 </div>
 
+                {{-- Deskripsi Section --}}
                 <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Deskripsi Karya</h4>
-                    <p id="modalDeskripsi" class="text-gray-600 text-sm leading-relaxed text-justify bg-gray-50/50 p-3 rounded-lg border border-gray-100"></p>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Deskripsi Produk</h4>
+                    <p id="modalDeskripsi" class="text-gray-600 text-sm leading-relaxed text-justify bg-gray-50/70 p-3.5 rounded-xl border border-gray-100 whitespace-pre-line"></p>
                 </div>
             </div>
 
-            <div class="mt-8 pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Nilai Estimasi (Base Price)</p>
-                    <p id="modalHarga" class="text-2xl font-black text-[#5d4037] tracking-tight mt-0.5"></p>
-                </div>
+            {{-- Estimasi Harga Footer Row --}}
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Estimasi Harga (Rp)</p>
+                <p id="modalHarga" class="text-2xl font-black text-[#5d4037] tracking-tight mt-0.5"></p>
             </div>
         </div>
     </div>
 </div>
 
-{{-- Enhanced JavaScript Logic Control --}}
+{{-- JavaScript Engine --}}
 <script>
 // Search Engine Table Filter
 document.getElementById('searchProduct').addEventListener('keyup', function() {
@@ -254,7 +249,7 @@ document.querySelectorAll('.product-row').forEach(row => {
     });
 });
 
-// Fast Action Dismiss Popups
+// Dismiss Popups functions
 const closeModalFunc = () => {
     modal.classList.remove('flex');
     modal.classList.add('hidden');
