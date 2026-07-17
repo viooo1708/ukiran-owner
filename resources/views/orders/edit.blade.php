@@ -162,16 +162,17 @@
                         id="tahap_produksi"
                         name="tahap_produksi"
                         class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none transition-all bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
-                        <option value="persiapan" {{ old('tahap_produksi', $order['latest_status']['status'] ?? '') == 'persiapan' ? 'selected' : '' }}>
+
+                        <option value="persiapan" {{ old('tahap_produksi', $order['latest_status']['status'] ?? $order['tahap_produksi'] ?? '') == 'persiapan' ? 'selected' : '' }}>
                             📦 Persiapan
                         </option>
-                        <option value="pengukiran" {{ old('tahap_produksi', $order['latest_status']['status'] ?? '') == 'pengukiran' ? 'selected' : '' }}>
+                        <option value="pengukiran" {{ old('tahap_produksi', $order['latest_status']['status'] ?? $order['tahap_produksi'] ?? '') == 'pengukiran' ? 'selected' : '' }}>
                             🔨 Pengukiran
                         </option>
-                        <option value="finishing" {{ old('tahap_produksi', $order['latest_status']['status'] ?? '') == 'finishing' ? 'selected' : '' }}>
+                        <option value="finishing" {{ old('tahap_produksi', $order['latest_status']['status'] ?? $order['tahap_produksi'] ?? '') == 'finishing' ? 'selected' : '' }}>
                             ✨ Finishing
                         </option>
-                        <option value="selesai" {{ old('tahap_produksi', $order['latest_status']['status'] ?? '') == 'selesai' ? 'selected' : '' }}>
+                        <option value="selesai" {{ old('tahap_produksi', $order['latest_status']['status'] ?? $order['tahap_produksi'] ?? '') == 'selesai' ? 'selected' : '' }}>
                             ✅ Selesai
                         </option>
                     </select>
@@ -215,36 +216,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const statusPesanan = document.getElementById("status_pesanan");
     const tahapProduksi = document.getElementById("tahap_produksi");
     const tahapWarning = document.getElementById("tahap_warning");
+    const form = statusPesanan.closest('form');
 
     function handleStatusChange() {
-
-        if (statusPesanan.value === "menunggu_konfirmasi") {
-
+        if (statusPesanan.value !== "diproses") {
             tahapProduksi.disabled = true;
             tahapWarning.classList.remove("hidden");
-
         } else {
-
             tahapProduksi.disabled = false;
             tahapWarning.classList.add("hidden");
-
-            if (
-                statusPesanan.value === "diproses" &&
-                tahapProduksi.value === "persiapan"
-            ) {
-                tahapProduksi.value = "pengukiran";
-            }
-
-            if (statusPesanan.value === "selesai") {
-                tahapProduksi.value = "selesai";
-            }
+        }
+        if (statusPesanan.value === "selesai") {
+            tahapProduksi.value = "selesai";
         }
     }
 
     handleStatusChange();
-
     statusPesanan.addEventListener("change", handleStatusChange);
 
+    // SEBELUM SUBMIT: Aktifkan kembali input agar nilainya ikut terkirim ke Laravel
+    form.addEventListener("submit", function () {
+        if (statusPesanan.value === "diproses") {
+            tahapProduksi.disabled = false;
+        }
+    });
 });
 </script>
 @endsection

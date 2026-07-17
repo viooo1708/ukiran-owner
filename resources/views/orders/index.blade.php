@@ -77,41 +77,62 @@
                         </td>
 
                         <td class="px-6 py-4">
-                            <form action="{{ route('orders.update-production', $order['id']) }}" method="POST" class="flex items-center gap-2">
-                                @csrf
-                                @method('PUT')
-                                @php
-                                    // Disinkronkan dengan value dari select option halaman Edit
-                                    $currentTahap = strtolower($order['tahap_produksi'] ?? 'persiapan');
-                                    $statusPesanan = strtolower($order['status_pesanan'] ?? '');
-                                @endphp
+                            @php
+                                $statusPesanan = strtolower($order['status_pesanan'] ?? '');
+                                $currentTahap = strtolower($order['latest_status']['status'] ?? 'persiapan');
+                            @endphp
 
-                                @if($currentTahap == 'belum_mulai' || $currentTahap == 'persiapan')
-                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                            {{-- Menunggu Konfirmasi --}}
+                            @if($statusPesanan == 'menunggu_konfirmasi')
+
+                                <span class="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                                    ⏳ Belum Diproses
+                                </span>
+
+                            {{-- Dibatalkan --}}
+                            @elseif($statusPesanan == 'dibatalkan')
+
+                                <span class="inline-flex items-center rounded-md bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                                    ❌ Dibatalkan
+                                </span>
+
+                            {{-- Pesanan Selesai --}}
+                            @elseif($statusPesanan == 'selesai')
+
+                                <span class="inline-flex items-center rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                    ✅ Selesai
+                                </span>
+
+                            {{-- Sedang Diproses --}}
+                            @elseif($statusPesanan == 'diproses')
+
+                                @if($currentTahap == 'persiapan')
+                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-700">
                                         📦 Persiapan
                                     </span>
-                                @elseif($currentTahap == 'pengukiran' || $currentTahap == 'pahatan')
-                                    <span class="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 ring-1 ring-inset ring-amber-600/20">
+
+                                @elseif($currentTahap == 'pengukiran')
+                                    <span class="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">
                                         🔨 Pengukiran
                                     </span>
-                                @elseif($currentTahap == 'pengukiran' || $currentTahap == 'pahatan')
-                                    <span class="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 ring-1 ring-inset ring-amber-600/20">
-                                        🔨 Pengukiran
-                                    </span>
+
                                 @elseif($currentTahap == 'finishing')
-                                    <span class="inline-flex items-center rounded-md bg-purple-50 px-2.5 py-1 text-xs font-bold text-purple-800 ring-1 ring-inset ring-purple-600/20">
+                                    <span class="inline-flex items-center rounded-md bg-purple-50 px-2.5 py-1 text-xs font-bold text-purple-700">
                                         ✨ Finishing
                                     </span>
+
                                 @elseif($currentTahap == 'selesai')
-                                    <span class="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 ring-1 ring-inset ring-emerald-600/20">
+                                    <span class="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                                         ✅ Selesai
                                     </span>
+
                                 @else
-                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                        {{ $order['tahap_produksi'] ?? '-' }}
+                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                                        📦 Persiapan
                                     </span>
                                 @endif
-                            </form>
+
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             @php $status = strtolower($order['status_pesanan'] ?? ''); @endphp

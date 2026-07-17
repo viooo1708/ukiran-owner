@@ -101,7 +101,8 @@ class OrderController extends Controller
     public function updateProduction(Request $request, $id)
     {
         $request->validate([
-            'tahap_produksi' => 'required|in:belum_mulai,pahatan,perakitan,finishing'
+            // Samakan juga list-nya di sini
+            'tahap_produksi' => 'required|in:persiapan,pengukiran,finishing,selesai'
         ]);
 
         try {
@@ -130,7 +131,10 @@ class OrderController extends Controller
             'status_pesanan' => 'required|in:menunggu_konfirmasi,diproses,dibatalkan,selesai',
             'estimasi_biaya' => 'nullable|numeric',
             'estimasi_waktu' => 'nullable|string|max:100',
-            'tahap_produksi' => 'nullable|in:belum_mulai,pahatan,perakitan,finishing,selesai', // Tambahkan ini agar tidak lolos dari request
+
+            // SWASTIKAN BAGIAN INI DISAMAKAN DENGAN API
+            'tahap_produksi' => 'nullable|in:persiapan,pengukiran,finishing,selesai',
+
             'catatan'        => 'nullable|string',
         ]);
 

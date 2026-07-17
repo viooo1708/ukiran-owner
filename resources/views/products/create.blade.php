@@ -17,6 +17,18 @@
         </div>
     </div>
 
+    {{-- Session Error Alert (dari gagal koneksi/API) --}}
+@if (session('error'))
+    <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-red-600">error</span>
+            <p class="font-semibold text-red-800 text-sm md:text-base">
+                {{ session('error') }}
+            </p>
+        </div>
+    </div>
+@endif
+
     {{-- Error Validation Alert --}}
     @if ($errors->any())
         <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm">
@@ -65,12 +77,27 @@
                     <label class="block mb-2 text-sm font-semibold text-gray-700">
                         Jenis Ukiran
                     </label>
-                    <input
-                        type="text"
-                        name="jenis_ukiran"
-                        value="{{ old('jenis_ukiran') }}"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all"
-                        placeholder="Contoh: Relief Jepara, Ukir Kerawang">
+                    <div class="flex gap-2">
+                        <select
+                            name="jenis_ukiran"
+                            id="select_jenis_ukiran"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all">
+                            <option value="">-- Pilih Jenis Ukiran --</option>
+                            @foreach($jenis_ukiranOptions as $opt)
+                                <option value="{{ $opt['value'] }}" @selected(old('jenis_ukiran') == $opt['value'])>
+                                    {{ $opt['value'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button
+                            type="button"
+                            class="btn-add-attr shrink-0 px-3 rounded-xl border border-dashed border-gray-300 text-gray-500 hover:border-[#5d4037] hover:text-[#5d4037] text-sm transition-colors"
+                            data-type="jenis_ukiran"
+                            data-target="select_jenis_ukiran"
+                            title="Tambah Jenis Ukiran Baru">
+                            + Baru
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Ukuran --}}
@@ -78,12 +105,27 @@
                     <label class="block mb-2 text-sm font-semibold text-gray-700">
                         Ukuran / Dimensi
                     </label>
-                    <input
-                        type="text"
-                        name="ukuran"
-                        value="{{ old('ukuran') }}"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all"
-                        placeholder="Contoh: 120cm x 80cm">
+                    <div class="flex gap-2">
+                        <select
+                            name="ukuran"
+                            id="select_ukuran"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all">
+                            <option value="">-- Pilih Ukuran --</option>
+                            @foreach($ukuranOptions as $opt)
+                                <option value="{{ $opt['value'] }}" @selected(old('ukuran') == $opt['value'])>
+                                    {{ $opt['value'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button
+                            type="button"
+                            class="btn-add-attr shrink-0 px-3 rounded-xl border border-dashed border-gray-300 text-gray-500 hover:border-[#5d4037] hover:text-[#5d4037] text-sm transition-colors"
+                            data-type="ukuran"
+                            data-target="select_ukuran"
+                            title="Tambah Ukuran Baru">
+                            + Baru
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Bahan --}}
@@ -91,12 +133,27 @@
                     <label class="block mb-2 text-sm font-semibold text-gray-700">
                         Bahan / Material Utama
                     </label>
-                    <input
-                        type="text"
-                        name="bahan"
-                        value="{{ old('bahan') }}"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all"
-                        placeholder="Contoh: Kayu Jati Perhutani Grade A">
+                    <div class="flex gap-2">
+                        <select
+                            name="bahan"
+                            id="select_bahan"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all">
+                            <option value="">-- Pilih Bahan --</option>
+                            @foreach($bahanOptions as $opt)
+                                <option value="{{ $opt['value'] }}" @selected(old('bahan') == $opt['value'])>
+                                    {{ $opt['value'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button
+                            type="button"
+                            class="btn-add-attr shrink-0 px-3 rounded-xl border border-dashed border-gray-300 text-gray-500 hover:border-[#5d4037] hover:text-[#5d4037] text-sm transition-colors"
+                            data-type="bahan"
+                            data-target="select_bahan"
+                            title="Tambah Bahan Baru">
+                            + Baru
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Motif --}}
@@ -104,12 +161,27 @@
                     <label class="block mb-2 text-sm font-semibold text-gray-700">
                         Pola Ornamen / Motif
                     </label>
-                    <input
-                        type="text"
-                        name="motif"
-                        value="{{ old('motif') }}"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all"
-                        placeholder="Contoh: Motif Lung-lungan, Majapahit">
+                    <div class="flex gap-2">
+                        <select
+                            name="motif"
+                            id="select_motif"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all">
+                            <option value="">-- Pilih Motif --</option>
+                            @foreach($motifOptions as $opt)
+                                <option value="{{ $opt['value'] }}" @selected(old('motif') == $opt['value'])>
+                                    {{ $opt['value'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button
+                            type="button"
+                            class="btn-add-attr shrink-0 px-3 rounded-xl border border-dashed border-gray-300 text-gray-500 hover:border-[#5d4037] hover:text-[#5d4037] text-sm transition-colors"
+                            data-type="motif"
+                            data-target="select_motif"
+                            title="Tambah Motif Baru">
+                            + Baru
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Harga --}}
@@ -136,7 +208,7 @@
                     name="deskripsi"
                     rows="5"
                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] transition-all leading-relaxed"
-                    placeholder="Ceritakan detail filosofi, kerumitan, atau estimasi pengerjaan mahakarya ini..."></textarea>
+                    placeholder="Ceritakan detail filosofi, kerumitan, atau estimasi pengerjaan mahakarya ini...">{{ old('deskripsi') }}</textarea>
             </div>
 
             {{-- Media Grid Upload & Live Preview --}}
@@ -176,8 +248,7 @@
 
         {{-- Form Actions Footer --}}
         <div class="flex justify-end gap-3 bg-[#faf8f5] px-6 md:px-8 py-5 border-t border-[#eadfd8]">
-            <a
-                href="{{ route('products.index') }}"
+            <a href="{{ route('products.index') }}"
                 class="px-6 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
                 Batal
             </a>
@@ -200,6 +271,71 @@ document.getElementById('gambar').addEventListener('change', function(e) {
     if (file) {
         document.getElementById('previewImage').src = URL.createObjectURL(file);
     }
+});
+
+// Tambah opsi dropdown baru — VERSI DEBUG
+document.querySelectorAll('.btn-add-attr').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const type = this.dataset.type;
+        const targetSelect = document.getElementById(this.dataset.target);
+        const label = type.replace('_', ' ');
+
+        const value = prompt(`Masukkan ${label} baru:`);
+        if (!value || value.trim() === '') return;
+
+        console.log('Mengirim ke:', '{{ route("products.attributes.store") }}');
+        console.log('Payload:', { type: type, value: value.trim() });
+
+        fetch('{{ route("products.attributes.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ type: type, value: value.trim() }),
+        })
+        .then(async res => {
+            const text = await res.text();
+            console.log('=== HASIL RESPONSE ===');
+            console.log('Status:', res.status, res.statusText);
+            console.log('Body mentah:', text);
+            console.log('======================');
+
+            let json;
+            try {
+                json = JSON.parse(text);
+            } catch (e) {
+                alert('Server tidak balas JSON (status ' + res.status + '). Buka Console (F12) untuk lihat detail.');
+                return;
+            }
+
+            if (json.errors) {
+                alert(Object.values(json.errors).flat().join('\n'));
+                return;
+            }
+
+            if (!json.data) {
+                alert('Response tidak ada field "data". Pesan: ' + (json.message || 'tidak diketahui'));
+                console.log('Full JSON:', json);
+                return;
+            }
+
+            const newValue = json.data.value;
+            const exists = [...targetSelect.options].some(o => o.value === newValue);
+            if (!exists) {
+                const opt = document.createElement('option');
+                opt.value = newValue;
+                opt.textContent = newValue;
+                targetSelect.appendChild(opt);
+            }
+            targetSelect.value = newValue;
+        })
+        .catch(err => {
+            console.error('Fetch gagal total:', err);
+            alert('Tidak bisa menghubungi server sama sekali. Cek Console (F12).');
+        });
+    });
 });
 </script>
 @endsection

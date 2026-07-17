@@ -28,8 +28,9 @@ class ProductController extends Controller
             }
 
             $products = $response->json()['data'] ?? [];
+            $options = $this->getAttributeOptions();
 
-            return view('products.index', compact('products'));
+            return view('products.index', array_merge(compact('products'), $options));
 
         } catch (\Exception $e) {
 
@@ -43,67 +44,79 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        $options = $this->getAttributeOptions();
+
+        return view('products.create', $options);
     }
 
     /**
-     * Simpan produk baru.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama_product' => 'required',
-            'estimasi_harga' => 'required|numeric',
-            'gambar' => 'nullable|image|max:2048',
-        ]);
+ * Simpan produk baru.
+ */
+public function store(Request $request)
+{
+    $request->validate([
+        'nama_product' => 'required',
+        'estimasi_harga' => 'required|numeric',
+        'gambar' => 'nullable|image|max:2048',
+    ]);
 
-        try {
+    try {
 
-            $data = [
-                'nama_product' => $request->nama_product,
-                'jenis_ukiran' => $request->jenis_ukiran,
-                'ukuran' => $request->ukuran,
-                'bahan' => $request->bahan,
-                'motif' => $request->motif,
-                'deskripsi' => $request->deskripsi,
-                'estimasi_harga' => $request->estimasi_harga,
-            ];
+        $data = [
+            'nama_product' => $request->nama_product,
+            'jenis_ukiran' => $request->jenis_ukiran,
+            'ukuran' => $request->ukuran,
+            'bahan' => $request->bahan,
+            'motif' => $request->motif,
+            'deskripsi' => $request->deskripsi,
+            'estimasi_harga' => $request->estimasi_harga,
+        ];
 
-            if ($request->hasFile('gambar')) {
+        if ($request->hasFile('gambar')) {
 
-                $response = $this->api->upload(
-                    '/products',
-                    $data,
-                    $request->file('gambar')->getRealPath(),
-                    'gambar'
-                );
+            $response = $this->api->upload(
+                '/products',
+                $data,
+                $request->file('gambar')->getRealPath(),
+                'gambar'
+            );
 
-            } else {
+        } else {
 
-                $response = $this->api->post('/products', $data);
+            $response = $this->api->post('/products', $data);
 
-            }
+        }
 
-            if (!$response->successful()) {
+        // ===== DEBUG SEMENTARA — HAPUS SETELAH SELESAI =====
+        if (!$response->successful()) {
+            dd([
+                'status' => $response->status(),
+                'body'   => $response->json(),
+                'data_dikirim' => $data,
+            ]);
+        }
+        // ===== AKHIR BLOK DEBUG =====
 
-                return back()
-                    ->withInput()
-                    ->with('error', 'Produk gagal ditambahkan.');
-
-            }
-
-            return redirect()
-                ->route('products.index')
-                ->with('success', 'Produk berhasil ditambahkan.');
-
-        } catch (\Exception $e) {
+        if (!$response->successful()) {
 
             return back()
                 ->withInput()
-                ->with('error', 'Backend API tidak dapat dihubungi.');
+                ->with('error', 'Produk gagal ditambahkan: ' . ($response->json()['message'] ?? 'Alasan tidak diketahui.'));
 
         }
+
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Produk berhasil ditambahkan.');
+
+    } catch (\Exception $e) {
+
+        return back()
+            ->withInput()
+            ->with('error', 'Backend API tidak dapat dihubungi: ' . $e->getMessage());
+
     }
+}
 
     /**
      * Form edit produk.
@@ -123,8 +136,9 @@ class ProductController extends Controller
             }
 
             $product = $response->json()['data'];
+            $options = $this->getAttributeOptions();
 
-            return view('products.edit', compact('product'));
+            return view('products.edit', array_merge(compact('product'), $options));
 
         } catch (\Exception $e) {
 
@@ -217,6 +231,57 @@ class ProductController extends Controller
 
             return back()
                 ->with('error', 'Backend API tidak dapat dihubungi.');
+
+        }
+    }
+
+    /**
+     * Ambil semua opsi dropdown (motif, jenis_ukiran, bahan, ukuran) sekaligus
+     * dari API backend, dikelompokkan per kategori.
+     */
+    private function getAttributeOptions(): array
+    {
+        $types = ['motif', 'jenis_ukiran', 'bahan', 'ukuran'];
+        $options = [];
+
+        try {
+
+            $response = $this->api->get('/attributes');
+            $grouped = $response->successful() ? ($response->json()['data'] ?? []) : [];
+
+        } catch (\Exception $e) {
+
+            $grouped = [];
+
+        }
+
+        foreach ($types as $type) {
+            $options[$type . 'Options'] = $grouped[$type] ?? [];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Endpoint AJAX untuk menambah opsi dropdown baru
+     * (dipanggil dari tombol "+ Baru" di form create/edit produk).
+     */
+    public function storeAttribute(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:motif,jenis_ukiran,bahan,ukuran',
+            'value' => 'required|string|max:100',
+        ]);
+
+        try {
+
+            $response = $this->api->post('/attributes', $request->only('type', 'value'));
+
+            return response()->json($response->json(), $response->status());
+
+        } catch (\Exception $e) {
+
+            return response()->json(['message' => 'Backend API tidak dapat dihubungi.'], 500);
 
         }
     }
