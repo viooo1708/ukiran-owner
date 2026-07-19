@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="user-id" content="{{ auth()->id() }}">
     <title>@yield('title', 'Dashboard Owner') | Adi Ukiran</title>
 
     {{-- Tailwind --}}
@@ -121,6 +122,37 @@
     @include('components.footer')
 
     @stack('scripts')
+
+    {{-- Memanggil file app.js yang sudah dikompilasi Vite --}}
+    @vite(['resources/js/app.js'])
+
+    {{-- Script untuk Mendengarkan Notifikasi --}}
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Mengambil ID User dari tag meta HTML tanpa memicu error merah di editor
+            const metaTag = document.querySelector('meta[name="user-id"]');
+            const loggedInUserId = metaTag ? metaTag.getAttribute('content') : null;
+
+            setTimeout(() => {
+                // Pastikan loggedInUserId ada (tidak kosong) sebelum mendengarkan Echo
+                if (loggedInUserId && window.Echo) {
+                    console.log("Mendengarkan notifikasi untuk User ID:", loggedInUserId);
+
+                    window.Echo.private(`App.Models.User.${loggedInUserId}`)
+                        .listen('NewNotificationEvent', (event) => {
+                            const newNotification = event.notification;
+                            console.log("Notifikasi Baru Diterima!", newNotification);
+
+                            alert(`🔔 NOTIFIKASI BARU!\n\n${newNotification.title}\n${newNotification.message}`);
+                        })
+                        .error((error) => {
+                            console.error("Gagal terhubung ke Reverb:", error);
+                        });
+                }
+            }, 500);
+        });
+    </script>
 
     {{-- Scripts Kendali UI Global --}}
     <script>

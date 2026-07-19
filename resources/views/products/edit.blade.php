@@ -243,12 +243,6 @@
 
         {{-- Form Actions Footer --}}
         <div class="flex justify-end gap-3 bg-[#faf8f5] px-6 md:px-8 py-5 border-t border-[#eadfd8]">
-
-                href="{{ route('products.index') }}"
-                class="px-6 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-                Batal
-            </a>
-
             <button
                 type="submit"
                 class="px-6 py-2.5 rounded-xl bg-[#5d4037] hover:bg-[#3e2723] text-white text-sm font-medium shadow-sm transition-colors">

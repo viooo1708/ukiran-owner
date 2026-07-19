@@ -67,29 +67,79 @@
 <script>
 async function loadNotifications() {
     try {
-        // Hapus /api/
-        const response = await fetch('/notifications');
+        // Ambil token langsung dari session Laravel
+        const token = "{{ Session::get('token') }}";
+
+        const response = await fetch('http://127.0.0.1:1000/api/notifications', {
+            method: 'GET',
+            headers: {
+                // Kirim token via header Authorization
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error('Status: ' + response.status);
+
         const result = await response.json();
-        // ... sisa kode ...
-    } catch (e) { console.error(e); }
+
+        // Update UI
+        const list = document.getElementById('notificationList');
+        if (result.data && result.data.length > 0) {
+            list.innerHTML = result.data.map(n => `
+                <div onclick="markAsRead(${n.id})" class="p-4 border-b border-gray-100 cursor-pointer transition-colors ${n.is_read ? 'bg-white hover:bg-gray-50' : 'bg-amber-50 hover:bg-amber-100'}">
+                    <div class="flex justify-between items-start">
+                        <p class="font-bold text-xs ${n.is_read ? 'text-gray-600' : 'text-[#5d4037]'}">
+                            ${n.title} ${n.is_read ? '' : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500 ml-1"></span>'}
+                        </p>
+                    </div>
+                    <p class="text-[11px] ${n.is_read ? 'text-gray-400' : 'text-gray-600'} mt-0.5">${n.message}</p>
+                </div>
+            `).join('');
+
+            // Tampilkan badge merah jika ada notifikasi belum dibaca (is_read == 0)
+            const hasUnread = result.data.some(n => n.is_read == 0);
+            document.getElementById('notiBadge').classList.toggle('hidden', !hasUnread);
+        } else {
+            list.innerHTML = '<div class="p-4 text-center text-xs text-gray-500">Tidak ada notifikasi.</div>';
+            document.getElementById('notiBadge').classList.add('hidden');
+        }
+    } catch (e) {
+        console.error("Error:", e);
+    }
 }
 
 async function markAsRead(id) {
-    // Hapus /api/
-    await fetch(`/notifications/${id}/read`, {
-        method: 'POST',
-        headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'}
-    });
-    loadNotifications();
+    const token = "{{ Session::get('token') }}";
+    try {
+        // Arahkan ke port 1000 (Backend)
+        const response = await fetch(`http://127.0.0.1:1000/api/notifications/${id}/read`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Tetap sertakan jika dibutuhkan backend
+            }
+        });
+        if (response.ok) loadNotifications();
+    } catch (e) { console.error("Gagal menandai dibaca:", e); }
 }
 
 async function markAllAsRead() {
-    // Hapus /api/
-    await fetch('/notifications/read-all', {
-        method: 'POST',
-        headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'}
-    });
-    loadNotifications();
+    const token = "{{ Session::get('token') }}";
+    try {
+        // Arahkan ke port 1000 (Backend)
+        const response = await fetch('http://127.0.0.1:1000/api/notifications/read-all', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        if (response.ok) loadNotifications();
+    } catch (e) { console.error("Gagal menandai semua dibaca:", e); }
 }
 
 function toggleNotificationMenu() {

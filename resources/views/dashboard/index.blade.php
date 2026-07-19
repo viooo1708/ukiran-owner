@@ -182,7 +182,6 @@
                 </h3>
 
                 <div class="space-y-4">
-                    {{-- Sekarang memakai data dinamis dari Controller --}}
                     @foreach($progressProduksi as $item)
                     <div>
                         <div class="flex justify-between text-xs font-medium text-gray-600 mb-1.5">
@@ -190,7 +189,8 @@
                             <span class="font-bold text-[#5d4037]">{{ $item['value'] }}%</span>
                         </div>
                         <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-[#8d6e63] rounded-full transition-all duration-500" style="width: {{ $item['value'] }}%"></div>
+                            <div class="h-full bg-[#8d6e63] rounded-full transition-all duration-500"
+                                style="width: {{ $item['value'] }}%"></div>
                         </div>
                     </div>
                     @endforeach
@@ -243,3 +243,20 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script type="module">
+    // Mendengarkan event dari Reverb
+    window.Echo.channel('orders')
+        .listen('OrderCreated', (e) => {
+            console.log('Pesanan baru terdeteksi:', e.order);
+
+            // Memberikan sedikit feedback visual sebelum refresh
+            alert('Ada pesanan baru! Halaman akan diperbarui.');
+
+            // Reload halaman untuk memicu Controller melakukan perhitungan ulang
+            // agar data statistik dan progress bar tetap akurat
+            window.location.reload();
+        });
+</script>
+@endpush

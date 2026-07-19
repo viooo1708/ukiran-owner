@@ -234,4 +234,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
+<script type="module">
+    // Pastikan ID user atau channel yang digunakan sesuai
+    window.Echo.channel('orders')
+        .listen('OrderCreated', (e) => {
+            console.log('Pesanan baru terdeteksi:', e.order);
+
+            // Opsi 1: Reload halaman secara halus agar tabel terisi ulang dari server
+            // Ini paling aman agar data tabel sinkron dengan database
+            window.location.reload();
+
+            // Opsi 2 (Opsional): Jika ingin update tanpa reload, Anda perlu
+            // membuat fungsi AJAX untuk menambah baris ke tbody secara manual.
+        });
+</script>
 @endsection
