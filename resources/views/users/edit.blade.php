@@ -3,129 +3,143 @@
 @section('title', 'Edit Data Pelanggan')
 
 @section('content')
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12 text-gray-800">
 
-    {{-- Navigasi Kembali --}}
-    <div>
-        <a href="{{ route('profile.index') }}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-[#5d4037] transition-colors">
-            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-[#e5ddd8]">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#3e2723] tracking-tight">
+                Edit Profil Pelanggan
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">
+                Perbarui informasi profil atau ubah hak akses peran (role) pengguna ini.
+            </p>
+        </div>
+
+        <a href="{{ route('profile.index') }}" class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
             Kembali ke Daftar Pelanggan
         </a>
     </div>
 
-    {{-- Judul Halaman --}}
-    <div>
-        <h1 class="text-3xl font-bold text-[#5d4037]">Edit Profil Pelanggan</h1>
-        <p class="text-gray-500 mt-1">Perbarui informasi profil atau ubah hak akses peran (role) pengguna ini.</p>
-    </div>
-
-    {{-- Form Edit --}}
-    <div class="bg-white rounded-xl shadow overflow-hidden">
-        <form action="{{ route('users.update', $user['id']) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
+    {{-- Form Container Card --}}
+    <div class="bg-white rounded-2xl border border-[#eadfd8] shadow-sm overflow-hidden max-w-4xl mx-auto">
+        <form action="{{ route('users.update', $user['id']) }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8 space-y-6">
             @csrf
             @method('PUT')
 
             {{-- Preview Foto Saat Ini --}}
-            <div class="flex items-center space-y-0 gap-4">
+            <div class="flex items-center gap-4 bg-[#faf8f5] p-4 rounded-xl border border-[#eadfd8]">
                 <div>
                     @if(!empty($user['foto']))
-                        <img src="{{ $user['foto'] }}" class="w-16 h-16 rounded-full object-cover shadow-sm border border-gray-200">
+                        <img src="{{ $user['foto'] }}" class="w-14 h-14 rounded-xl object-cover shadow-sm border border-gray-200">
                     @else
-                        <div class="w-16 h-16 rounded-full bg-[#d7ccc8] flex items-center justify-center text-[#5d4037] text-xl font-bold shadow-sm">
+                        <div class="w-14 h-14 rounded-xl bg-[#efebe9] flex items-center justify-center text-[#5d4037] text-lg font-bold shadow-sm">
                             {{ strtoupper(substr($user['nama'], 0, 1)) }}
                         </div>
                     @endif
                 </div>
                 <div>
-                    <h3 class="text-sm font-medium text-gray-700">Foto Profil</h3>
-                    <p class="text-xs text-gray-400">Diatur langsung oleh pelanggan via aplikasi / API.</p>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-600">Foto Profil Pengguna</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Diatur langsung oleh pengguna via aplikasi atau sistem utama.</p>
                 </div>
             </div>
 
-            <hr class="border-gray-100">
-
-            {{-- Input Nama --}}
-            <div>
-                <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    id="nama"
-                    name="nama"
-                    value="{{ old('nama', $user['nama']) }}"
-                    required
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-[#6d4c41] focus:border-[#6d4c41] @error('nama') border-red-500 @enderror"
-                >
-                @error('nama')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {{-- Input Email (Readonly jika kebijakan API tidak memperbolehkan ganti email) --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {{-- Input Nama --}}
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
+                    <label for="nama" class="block mb-2 text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Nama Lengkap <span class="text-rose-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="nama"
+                        name="nama"
+                        value="{{ old('nama', $user['nama']) }}"
+                        required
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all font-semibold text-gray-800 @error('nama') border-rose-500 @enderror"
+                    >
+                    @error('nama')
+                        <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Input Email --}}
+                <div>
+                    <label for="email" class="block mb-2 text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Alamat Email
+                    </label>
                     <input
                         type="email"
                         id="email"
                         value="{{ $user['email'] }}"
                         disabled
-                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed font-medium"
                     >
-                    <p class="text-xs text-gray-400 mt-1">Email tidak dapat diubah demi keamanan akun.</p>
+                    <p class="text-[11px] text-gray-400 mt-1">Email tidak dapat diubah demi keamanan kredensial.</p>
                 </div>
 
                 {{-- Input No HP --}}
                 <div>
-                    <label for="no_hp" class="block text-sm font-medium text-gray-700 mb-1">Nomor HP</label>
+                    <label for="no_hp" class="block mb-2 text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Nomor HP / WhatsApp
+                    </label>
                     <input
                         type="text"
                         id="no_hp"
                         name="no_hp"
                         value="{{ old('no_hp', $user['no_hp'] ?? '') }}"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-[#6d4c41] focus:border-[#6d4c41] @error('no_hp') border-red-500 @enderror"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all font-medium text-gray-800 @error('no_hp') border-rose-500 @enderror"
                         placeholder="Contoh: 08123456789"
                     >
                     @error('no_hp')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
-            </div>
 
-            {{-- Pilihan Peran (Role) --}}
-            <div>
-                <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Hak Akses / Peran <span class="text-red-500">*</span></label>
-                <select
-                    id="role"
-                    name="role"
-                    required
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-[#6d4c41] focus:border-[#6d4c41]"
-                >
-                    <option value="pelanggan" {{ old('role', $user['role']) == 'pelanggan' ? 'selected' : '' }}>Pelanggan (Customer)</option>
-                    <option value="owner" {{ old('role', $user['role']) == 'owner' ? 'selected' : '' }}>Owner (Administrator)</option>
-                </select>
-                <p class="text-xs text-gray-400 mt-1">Hati-hati: Memberikan role 'Owner' akan memberikan akses penuh ke dashboard ini kepada pengguna terkait.</p>
+                {{-- Pilihan Peran (Role) --}}
+                <div>
+                    <label for="role" class="block mb-2 text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Hak Akses / Peran <span class="text-rose-500">*</span>
+                    </label>
+                    <select
+                        id="role"
+                        name="role"
+                        required
+                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all font-medium text-gray-800"
+                    >
+                        <option value="pelanggan" {{ old('role', $user['role']) == 'pelanggan' ? 'selected' : '' }}>Pelanggan (Customer)</option>
+                        <option value="owner" {{ old('role', $user['role']) == 'owner' ? 'selected' : '' }}>Owner (Administrator)</option>
+                    </select>
+                    <p class="text-[11px] text-gray-400 mt-1">Perhatian: Hak akses Owner memberikan kontrol kendali penuh sistem.</p>
+                </div>
             </div>
 
             {{-- Input Alamat --}}
             <div>
-                <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Domisili</label>
+                <label for="alamat" class="block mb-2 text-xs font-bold uppercase tracking-wider text-gray-600">
+                    Alamat Domisili
+                </label>
                 <textarea
                     id="alamat"
                     name="alamat"
                     rows="3"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-[#6d4c41] focus:border-[#6d4c41] @error('alamat') border-red-500 @enderror"
-                    placeholder="Tuliskan alamat lengkap..."
+                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all leading-relaxed text-gray-800 placeholder:text-gray-400 @error('alamat') border-rose-500 @enderror"
+                    placeholder="Tuliskan alamat lengkap domisili pelanggan..."
                 >{{ old('alamat', $user['alamat'] ?? '') }}</textarea>
                 @error('alamat')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p>
                 @enderror
             </div>
 
-            {{-- Tombol Aksi --}}
+            {{-- Tombol Aksi Footer --}}
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                <button type="submit" class="rounded-lg bg-[#5d4037] px-4 py-2 text-sm font-medium text-white hover:bg-[#4e342e] transition-colors shadow-sm">
+                <a href="{{ route('profile.index') }}"
+                    class="px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors">
+                    Batal
+                </a>
+
+                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#5d4037] hover:bg-[#3e2723] text-white text-xs font-bold shadow-sm transition-colors">
                     Simpan Perubahan
                 </button>
             </div>

@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="max-w-[1600px] mx-auto space-y-8 animate-fade-in">
+<div class="max-w-7xl mx-auto space-y-8 animate-fade-in">
 
     {{-- Header Section --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -83,7 +83,7 @@
                 </div>
             </div>
             <div class="mt-4">
-                <h2 class="text-2xl xl:text-3xl font-extrabold text-[#3e2723] tracking-tight truncate">
+                <h2 class="text-xl xl:text-2xl font-extrabold text-[#3e2723] tracking-tight truncate">
                     {{ $card['value'] }}
                 </h2>
             </div>
@@ -98,13 +98,13 @@
         <div class="xl:col-span-2 bg-white rounded-2xl border border-[#eadfd8] shadow-sm overflow-hidden">
 
             {{-- Header Table --}}
-            <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-white">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-[#faf8f5]">
                 <div>
                     <h3 class="font-bold text-lg text-[#3e2723]">
                         Pesanan Terbaru
                     </h3>
                     <p class="text-xs text-gray-400 mt-0.5">
-                        Daftar pesanan transaksi masuk terbaru
+                        Daftar transaksi pesanan masuk terbaru
                     </p>
                 </div>
                 <a href="{{ route('orders.index') }}"
@@ -116,7 +116,7 @@
 
             {{-- Table Body --}}
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-[#faf7f4] text-gray-500 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
                             <th class="py-3.5 px-6">ID</th>
@@ -126,21 +126,28 @@
                             <th class="py-3.5 px-6 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 text-sm">
+                    <tbody class="divide-y divide-gray-100">
                         @forelse($orders as $order)
+                        @php
+                            // Mengatasi data baik berupa Array maupun Object Eloquent
+                            $orderId = is_array($order) ? ($order['id'] ?? '') : ($order->id ?? '');
+                            $userNama = is_array($order) ? ($order['user']['nama'] ?? '-') : ($order->user->nama ?? '-');
+                            $productNama = is_array($order) ? ($order['product']['nama_product'] ?? '-') : ($order->product->nama_product ?? '-');
+                            $statusPesanan = is_array($order) ? ($order['status_pesanan'] ?? 'menunggu') : ($order->status_pesanan ?? 'menunggu');
+                        @endphp
                         <tr class="hover:bg-[#faf7f4]/60 transition-colors">
                             <td class="py-4 px-6 font-bold text-[#5d4037]">
-                                #{{ $order['id'] }}
+                                #{{ $orderId }}
                             </td>
                             <td class="py-4 px-6 font-medium text-gray-800">
-                                {{ $order['user']['nama'] ?? '-' }}
+                                {{ $userNama }}
                             </td>
                             <td class="py-4 px-6 text-gray-600">
-                                {{ $order['product']['nama_product'] ?? '-' }}
+                                {{ $productNama }}
                             </td>
                             <td class="py-4 px-6">
                                 @php
-                                    $status = strtolower($order['status_pesanan'] ?? '');
+                                    $status = strtolower($statusPesanan);
                                     $badgeStyle = match(true) {
                                         str_contains($status, 'selesai') => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                         str_contains($status, 'proses')  => 'bg-blue-50 text-blue-700 border-blue-200',
@@ -149,11 +156,11 @@
                                     };
                                 @endphp
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border {{ $badgeStyle }}">
-                                    {{ ucfirst(str_replace('_', ' ', $order['status_pesanan'])) }}
+                                    {{ ucfirst(str_replace('_', ' ', $statusPesanan)) }}
                                 </span>
                             </td>
                             <td class="py-4 px-6 text-center">
-                                <a href="{{ route('orders.show', $order['id']) }}"
+                                <a href="{{ route('orders.show', $orderId) }}"
                                    class="inline-flex items-center justify-center px-3.5 py-1.5 bg-[#5d4037] hover:bg-[#3e2723] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
                                     Detail
                                 </a>
@@ -161,9 +168,9 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-gray-400">
+                            <td colspan="5" class="py-16 text-center text-gray-400">
                                 <span class="material-symbols-outlined text-4xl block mb-2 text-gray-300">inbox</span>
-                                Belum ada data pesanan terbaru.
+                                <p class="font-medium text-sm">Belum ada data pesanan terbaru.</p>
                             </td>
                         </tr>
                         @endforelse
@@ -182,18 +189,20 @@
                 </h3>
 
                 <div class="space-y-4">
-                    @foreach($progressProduksi as $item)
+                    @forelse($progressProduksi ?? [] as $item)
                     <div>
                         <div class="flex justify-between text-xs font-medium text-gray-600 mb-1.5">
-                            <span>{{ $item['name'] }}</span>
-                            <span class="font-bold text-[#5d4037]">{{ $item['value'] }}%</span>
+                            <span>{{ $item['name'] ?? 'Tahapan' }}</span>
+                            <span class="font-bold text-[#5d4037]">{{ $item['value'] ?? 0 }}%</span>
                         </div>
                         <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
                             <div class="h-full bg-[#8d6e63] rounded-full transition-all duration-500"
-                                style="width: {{ $item['value'] }}%"></div>
+                                style="width: {{ $item['value'] ?? 0 }}%"></div>
                         </div>
                     </div>
-                    @endforeach
+                    @empty
+                    <p class="text-xs text-gray-400 text-center py-4">Data progress belum tersedia.</p>
+                    @endforelse
                 </div>
             </div>
 
@@ -247,16 +256,13 @@
 @push('scripts')
 <script type="module">
     // Mendengarkan event dari Reverb
-    window.Echo.channel('orders')
-        .listen('OrderCreated', (e) => {
-            console.log('Pesanan baru terdeteksi:', e.order);
-
-            // Memberikan sedikit feedback visual sebelum refresh
-            alert('Ada pesanan baru! Halaman akan diperbarui.');
-
-            // Reload halaman untuk memicu Controller melakukan perhitungan ulang
-            // agar data statistik dan progress bar tetap akurat
-            window.location.reload();
-        });
+    if (window.Echo) {
+        window.Echo.channel('orders')
+            .listen('OrderCreated', (e) => {
+                console.log('Pesanan baru terdeteksi:', e.order);
+                alert('Ada pesanan baru! Halaman akan diperbarui.');
+                window.location.reload();
+            });
+    }
 </script>
 @endpush

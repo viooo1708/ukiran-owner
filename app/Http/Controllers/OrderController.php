@@ -131,26 +131,32 @@ class OrderController extends Controller
             'status_pesanan' => 'required|in:menunggu_konfirmasi,diproses,dibatalkan,selesai',
             'estimasi_biaya' => 'nullable|numeric',
             'estimasi_waktu' => 'nullable|string|max:100',
-
-            // SWASTIKAN BAGIAN INI DISAMAKAN DENGAN API
             'tahap_produksi' => 'nullable|in:persiapan,pengukiran,finishing,selesai',
-
             'catatan'        => 'nullable|string',
         ]);
 
         try {
-            $response = $this->api->put("/orders/$id", [
+            $dataPayload = [
                 'status_pesanan' => $request->status_pesanan,
                 'estimasi_biaya' => $request->estimasi_biaya,
                 'estimasi_waktu' => $request->estimasi_waktu,
-                'tahap_produksi' => $request->tahap_produksi,
                 'catatan'        => $request->catatan,
-            ]);
+            ];
 
-            if (!$response->successful()) {
+            // HANYA SERTAKAN tahap_produksi jika status pesanannya benar-benar 'diproses'
+            if ($request->status_pesanan === 'diproses') {
+                $dataPayload['tahap_produksi'] = $request->tahap_produksi;
+            }
+
+            $response = $this->api->put("/orders/$id", $dataPayload);
+            $resJson = $response->json();
+
+            $isSuccess = $response->successful() || (is_array($resJson) && ($resJson['success'] ?? false) === true);
+
+            if (!$isSuccess) {
                 return back()
                     ->withInput()
-                    ->with('error', 'Pesanan gagal diperbarui.');
+                    ->with('error', 'Pesanan gagal diperbarui oleh server API: ' . ($resJson['message'] ?? 'Kesalahan tidak diketahui'));
             }
 
             return redirect()
@@ -158,7 +164,6 @@ class OrderController extends Controller
                 ->with('success', 'Status pesanan berhasil diperbarui.');
 
         } catch (\Exception $e) {
-            // Mengganti dd() dengan redirect back yang aman agar user tidak melihat halaman error mentah
             return back()
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());

@@ -3,25 +3,25 @@
 @section('title', 'Pesanan')
 
 @section('content')
-<div class="max-w-7xl mx-auto p-4 md:p-8 animate-fade-in">
+<div class="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12">
 
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">Data Pesanan</h1>
-            <p class="mt-1 text-sm text-gray-500">Kelola dan pantau seluruh data pesanan pelanggan Anda.</p>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#3e2723] tracking-tight">Data Pesanan</h1>
+            <p class="mt-1 text-sm text-gray-500">Kelola dan pantau seluruh data pesanan pelanggan Anda dengan mudah.</p>
         </div>
     </div>
 
     {{-- Card Main Container --}}
-    <div class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm ring-1 ring-black/5">
+    <div class="bg-white rounded-2xl border border-[#eadfd8] shadow-sm overflow-hidden">
 
         {{-- Header Card --}}
-        <div class="flex flex-col gap-4 border-b border-gray-100 p-6 sm:flex-row sm:items-center sm:justify-between bg-gray-50/40">
+        <div class="flex flex-col gap-4 border-b border-[#e5ddd8] p-6 sm:flex-row sm:items-center sm:justify-between bg-[#faf8f5]">
             <div>
-                <h2 class="text-lg font-bold text-gray-900">Daftar Pesanan</h2>
+                <h2 class="text-lg font-bold text-[#3e2723]">Daftar Pesanan</h2>
                 <p class="text-xs font-semibold text-gray-500 mt-0.5">
-                    Total <span class="text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-md ring-1 ring-amber-600/10">{{ is_array($orders) ? count($orders) : 0 }}</span> Pesanan
+                    Total <span class="text-[#5d4037] font-bold bg-[#efebe9] px-2.5 py-0.5 rounded-full border border-[#d7ccc8]">{{ is_array($orders) ? count($orders) : 0 }}</span> Pesanan
                 </p>
             </div>
 
@@ -35,28 +35,28 @@
                     type="text"
                     id="searchOrder"
                     placeholder="Cari nama, produk, atau kode..."
-                    class="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 focus:outline-none shadow-sm transition-all">
+                    class="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-gray-900 placeholder-gray-400 focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none shadow-sm transition-all">
             </div>
         </div>
 
         {{-- Table --}}
         <div class="overflow-x-auto">
-            <table class="w-full border-collapse text-left" id="orderTable">
-                <thead class="bg-gray-50/70 border-b border-gray-200/60">
-                    <tr>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-500">ID</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-500">Pelanggan</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-500">Produk</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-500">Estimasi Biaya</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-500">Tahap Produksi</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-500">Status Transaksi</th>
-                        <th class="px-6 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-gray-500">Aksi</th>
+            <table class="w-full border-collapse text-left text-sm" id="orderTable">
+                <thead>
+                    <tr class="bg-[#faf7f4] text-gray-500 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
+                        <th class="py-4 px-6">ID</th>
+                        <th class="py-4 px-6">Pelanggan</th>
+                        <th class="py-4 px-6">Produk</th>
+                        <th class="py-4 px-6">Estimasi Biaya</th>
+                        <th class="py-4 px-6">Tahap Produksi</th>
+                        <th class="py-4 px-6">Status Transaksi</th>
+                        <th class="py-4 px-6 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($orders as $order)
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="px-6 py-4 font-mono text-xs font-bold text-gray-600">
+                    <tr class="hover:bg-[#faf7f4]/60 transition-colors">
+                        <td class="px-6 py-4 font-mono text-xs font-bold text-[#5d4037]">
                             #{{ $order['id'] }}
                         </td>
                         <td class="px-6 py-4">
@@ -82,113 +82,79 @@
                                 $currentTahap = strtolower($order['latest_status']['status'] ?? 'persiapan');
                             @endphp
 
-                            {{-- Menunggu Konfirmasi --}}
                             @if($statusPesanan == 'menunggu_konfirmasi')
-
                                 <span class="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
                                     ⏳ Belum Diproses
                                 </span>
-
-                            {{-- Dibatalkan --}}
                             @elseif($statusPesanan == 'dibatalkan')
-
-                                <span class="inline-flex items-center rounded-md bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                                <span class="inline-flex items-center rounded-md bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
                                     ❌ Dibatalkan
                                 </span>
-
-                            {{-- Pesanan Selesai --}}
                             @elseif($statusPesanan == 'selesai')
-
-                                <span class="inline-flex items-center rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                <span class="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                                     ✅ Selesai
                                 </span>
-
-                            {{-- Sedang Diproses --}}
                             @elseif($statusPesanan == 'diproses')
-
                                 @if($currentTahap == 'persiapan')
                                     <span class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-700">
                                         📦 Persiapan
                                     </span>
-
                                 @elseif($currentTahap == 'pengukiran')
                                     <span class="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">
                                         🔨 Pengukiran
                                     </span>
-
                                 @elseif($currentTahap == 'finishing')
                                     <span class="inline-flex items-center rounded-md bg-purple-50 px-2.5 py-1 text-xs font-bold text-purple-700">
                                         ✨ Finishing
                                     </span>
-
                                 @elseif($currentTahap == 'selesai')
                                     <span class="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                                         ✅ Selesai
                                     </span>
-
                                 @else
                                     <span class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-600">
                                         📦 Persiapan
                                     </span>
                                 @endif
-
                             @endif
                         </td>
-                        <td class="px-6 py-4">
-                            @php $status = strtolower($order['status_pesanan'] ?? ''); @endphp
 
-                            @if($status == 'menunggu_konfirmasi')
-                                <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-inset ring-amber-600/20">
-                                    Menunggu
-                                </span>
-                            @elseif($status == 'diproses')
-                                <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20">
-                                    Diproses
-                                </span>
-                            @elseif($status == 'selesai')
-                                <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                                    Selesai
-                                </span>
-                            @elseif($status == 'dibatalkan')
-                                <span class="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 ring-1 ring-inset ring-rose-600/10">
-                                    Dibatalkan
-                                </span>
-                            @else
-                                <span class="inline-flex items-center rounded-full bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                    {{ $order['status_pesanan'] }}
-                                </span>
-                            @endif
-                        </td>
                         <td class="px-6 py-4">
+                            @php
+                                $status = strtolower($order['status_pesanan'] ?? '');
+                                $badgeStyle = match(true) {
+                                    str_contains($status, 'selesai') => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                    str_contains($status, 'proses')  => 'bg-blue-50 text-blue-700 border-blue-200',
+                                    str_contains($status, 'batal')   => 'bg-rose-50 text-rose-700 border-rose-200',
+                                    default => 'bg-amber-50 text-amber-700 border-amber-200',
+                                };
+                            @endphp
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border {{ $badgeStyle }}">
+                                {{ ucfirst(str_replace('_', ' ', $order['status_pesanan'] ?? 'menunggu')) }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
                             <div class="flex justify-center items-center gap-2">
                                 <a href="{{ route('orders.show', $order['id']) }}"
-                                   class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/40 transition-colors shadow-sm"
+                                   class="inline-flex items-center justify-center px-3 py-1.5 bg-[#5d4037] hover:bg-[#3e2723] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
                                    title="Lihat Detail">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
+                                    Detail
                                 </a>
 
                                 <a href="{{ route('orders.edit', $order['id']) }}"
-                                   class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/40 transition-colors shadow-sm"
+                                   class="inline-flex items-center justify-center px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-xs font-semibold rounded-lg shadow-sm transition-colors"
                                    title="Edit Pesanan">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
+                                    Edit
                                 </a>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr id="emptyRow">
-                        <td colspan="7" class="py-16 text-center">
-                            <div class="flex flex-col items-center justify-center">
-                                <svg class="h-10 w-10 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m16.5 0a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 7.5m16.5 0V4.5a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25V7.5m10.5-6v2.25m-3-2.25v2.25m-3-2.25v2.25" />
-                                </svg>
-                                <span class="text-sm font-semibold text-gray-400">Belum ada data pesanan yang tersedia.</span>
-                            </div>
+                        <td colspan="7" class="py-16 text-center text-gray-400">
+                            <span class="material-symbols-outlined text-4xl block mb-2 text-gray-300">inbox</span>
+                            <p class="font-medium text-sm">Belum ada data pesanan yang tersedia.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -222,10 +188,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (emptyRow) {
                 if (!hasVisibleRow && value !== '') {
                     emptyRow.style.display = '';
-                    emptyRow.querySelector('span').innerText = 'Tidak ada pesanan yang cocok dengan pencarian Anda.';
+                    emptyRow.querySelector('p').innerText = 'Tidak ada pesanan yang cocok dengan pencarian Anda.';
                 } else if (value === '' && rows.length === 0) {
                     emptyRow.style.display = '';
-                    emptyRow.querySelector('span').innerText = 'Belum ada data pesanan yang tersedia.';
+                    emptyRow.querySelector('p').innerText = 'Belum ada data pesanan yang tersedia.';
                 } else {
                     emptyRow.style.display = 'none';
                 }
@@ -235,18 +201,16 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+@push('scripts')
 <script type="module">
-    // Pastikan ID user atau channel yang digunakan sesuai
-    window.Echo.channel('orders')
-        .listen('OrderCreated', (e) => {
-            console.log('Pesanan baru terdeteksi:', e.order);
-
-            // Opsi 1: Reload halaman secara halus agar tabel terisi ulang dari server
-            // Ini paling aman agar data tabel sinkron dengan database
-            window.location.reload();
-
-            // Opsi 2 (Opsional): Jika ingin update tanpa reload, Anda perlu
-            // membuat fungsi AJAX untuk menambah baris ke tbody secara manual.
-        });
+    if (window.Echo) {
+        window.Echo.channel('orders')
+            .listen('OrderCreated', (e) => {
+                console.log('Pesanan baru terdeteksi:', e.order);
+                alert('Ada pesanan baru! Halaman akan diperbarui.');
+                window.location.reload();
+            });
+    }
 </script>
+@endpush
 @endsection
