@@ -215,6 +215,15 @@
                 <p class="text-xs text-gray-400 mt-1">Coba sesuaikan kembali kata kunci pencarian atau kombinasi filter Anda.</p>
             </div>
         </div>
+
+        {{-- Pagination Container --}}
+        <div id="paginationContainer" class="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-gray-100 bg-[#faf8f5] text-xs">
+            <span id="paginationInfo" class="text-gray-500 mb-3 sm:mb-0 font-medium">Menampilkan 0 dari 0 data</span>
+            <div id="paginationButtons" class="flex items-center gap-1.5">
+                {{-- Tombol halaman akan di-generate otomatis via JS --}}
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -280,91 +289,183 @@
 
 {{-- JavaScript Engine --}}
 <script>
-const searchInput  = document.getElementById('searchProduct');
-const filterJenis  = document.getElementById('filterJenis');
-const filterBahan  = document.getElementById('filterBahan');
-const filterMotif  = document.getElementById('filterMotif');
-const filterUkuran = document.getElementById('filterUkuran');
-const resetBtn     = document.getElementById('resetFilter');
-const totalCount   = document.getElementById('totalCount');
-const noResultRow  = document.getElementById('noResultRow');
-const rows         = document.querySelectorAll('#productTable tbody tr.product-row');
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput  = document.getElementById('searchProduct');
+    const filterJenis  = document.getElementById('filterJenis');
+    const filterBahan  = document.getElementById('filterBahan');
+    const filterMotif  = document.getElementById('filterMotif');
+    const filterUkuran = document.getElementById('filterUkuran');
+    const resetBtn     = document.getElementById('resetFilter');
+    const totalCount   = document.getElementById('totalCount');
+    const noResultRow  = document.getElementById('noResultRow');
 
-function applyFilters() {
-    const search = searchInput.value.toLowerCase();
-    const jenis  = filterJenis.value;
-    const bahan  = filterBahan.value;
-    const motif  = filterMotif.value;
-    const ukuran = filterUkuran.value;
+    // Nodes untuk Pagination
+    const paginationInfo    = document.getElementById('paginationInfo');
+    const paginationButtons = document.getElementById('paginationButtons');
 
-    let visibleCount = 0;
+    const rowsNodeList = document.querySelectorAll('#productTable tbody tr.product-row');
+    const rows = Array.from(rowsNodeList); // Konversi ke array
 
-    rows.forEach(row => {
-        const matchSearch = !search || row.innerText.toLowerCase().includes(search);
-        const matchJenis  = !jenis  || row.dataset.jenis  === jenis;
-        const matchBahan  = !bahan  || row.dataset.bahan  === bahan;
-        const matchMotif  = !motif  || row.dataset.motif  === motif;
-        const matchUkuran = !ukuran || row.dataset.ukuran === ukuran;
+    let currentPage = 1;
+    const rowsPerPage = 10;
 
-        const visible = matchSearch && matchJenis && matchBahan && matchMotif && matchUkuran;
+    function applyFilters() {
+        const search = searchInput.value.toLowerCase();
+        const jenis  = filterJenis.value;
+        const bahan  = filterBahan.value;
+        const motif  = filterMotif.value;
+        const ukuran = filterUkuran.value;
 
-        row.style.display = visible ? '' : 'none';
-        if (visible) visibleCount++;
+        // 1. Dapatkan baris yang cocok dengan filter
+        const filteredRows = rows.filter(row => {
+            const matchSearch = !search || row.innerText.toLowerCase().includes(search);
+            const matchJenis  = !jenis  || row.dataset.jenis  === jenis;
+            const matchBahan  = !bahan  || row.dataset.bahan  === bahan;
+            const matchMotif  = !motif  || row.dataset.motif  === motif;
+            const matchUkuran = !ukuran || row.dataset.ukuran === ukuran;
+
+            return matchSearch && matchJenis && matchBahan && matchMotif && matchUkuran;
+        });
+
+        // 2. Kalkulasi Halaman
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = totalPages;
+        } else if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        // 3. Sembunyikan semua baris terlebih dahulu
+        rows.forEach(row => row.style.display = 'none');
+
+        // 4. Tampilkan baris hanya untuk halaman saat ini
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const visibleRows = filteredRows.slice(startIndex, endIndex);
+
+        visibleRows.forEach(row => row.style.display = '');
+
+        // 5. Update Status Hitungan & Empty State
+        totalCount.textContent = filteredRows.length;
+        noResultRow.classList.toggle('hidden', filteredRows.length !== 0 || rows.length === 0);
+
+        // 6. Update Informasi Pagination & Tombol
+        if (filteredRows.length > 0) {
+            paginationInfo.innerText = `Menampilkan ${startIndex + 1} - ${Math.min(endIndex, filteredRows.length)} dari ${filteredRows.length} data`;
+        } else {
+            paginationInfo.innerText = `Menampilkan 0 dari 0 data`;
+        }
+
+        renderPaginationButtons(totalPages);
+    }
+
+    function renderPaginationButtons(totalPages) {
+        paginationButtons.innerHTML = '';
+
+        if (totalPages <= 1) return; // Jika cuma 1 halaman, tidak perlu tombol
+
+        // Tombol Prev
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '&laquo; Prev';
+        prevButton.className = `px-3 py-1.5 rounded-lg border font-bold transition-colors ${currentPage === 1 ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-200 hover:bg-[#5d4037] hover:text-white hover:border-[#5d4037]'}`;
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                applyFilters();
+            }
+        });
+        paginationButtons.appendChild(prevButton);
+
+        // Tombol Angka (Halaman)
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.innerText = i;
+            pageButton.className = `px-3 py-1.5 rounded-lg border font-bold transition-colors ${currentPage === i ? 'bg-[#5d4037] text-white border-[#5d4037]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`;
+            pageButton.addEventListener('click', () => {
+                currentPage = i;
+                applyFilters();
+            });
+            paginationButtons.appendChild(pageButton);
+        }
+
+        // Tombol Next
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = 'Next &raquo;';
+        nextButton.className = `px-3 py-1.5 rounded-lg border font-bold transition-colors ${currentPage === totalPages ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-200 hover:bg-[#5d4037] hover:text-white hover:border-[#5d4037]'}`;
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyFilters();
+            }
+        });
+        paginationButtons.appendChild(nextButton);
+    }
+
+    // Trigger pencarian dengan mereset halaman ke-1
+    searchInput.addEventListener('keyup', () => {
+        currentPage = 1;
+        applyFilters();
     });
 
-    totalCount.textContent = visibleCount;
-    noResultRow.classList.toggle('hidden', visibleCount !== 0 || rows.length === 0);
-}
+    [filterJenis, filterBahan, filterMotif, filterUkuran].forEach(el => {
+        el.addEventListener('change', () => {
+            currentPage = 1;
+            applyFilters();
+        });
+    });
 
-searchInput.addEventListener('keyup', applyFilters);
-[filterJenis, filterBahan, filterMotif, filterUkuran].forEach(el => {
-    el.addEventListener('change', applyFilters);
-});
+    resetBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        filterJenis.value = '';
+        filterBahan.value = '';
+        filterMotif.value = '';
+        filterUkuran.value = '';
+        currentPage = 1;
+        applyFilters();
+    });
 
-resetBtn.addEventListener('click', function () {
-    searchInput.value = '';
-    filterJenis.value = '';
-    filterBahan.value = '';
-    filterMotif.value = '';
-    filterUkuran.value = '';
+    // Modal Script
+    const modal = document.getElementById('productModal');
+    const modalContent = document.getElementById('modalContent');
+
+    document.querySelectorAll('.product-row').forEach(row => {
+        row.addEventListener('click', function() {
+            document.getElementById('modalNama').textContent = this.dataset.nama;
+            document.getElementById('modalJenis').textContent = this.dataset.jenis;
+            document.getElementById('modalUkuran').textContent = this.dataset.ukuran;
+            document.getElementById('modalBahan').textContent = this.dataset.bahan;
+            document.getElementById('modalMotif').textContent = this.dataset.motif;
+            document.getElementById('modalHarga').textContent = this.dataset.harga;
+            document.getElementById('modalDeskripsi').textContent = this.dataset.deskripsi;
+
+            let gambar = this.dataset.gambar;
+            document.getElementById('modalImage').src = gambar && gambar.trim() !== '' ? gambar : 'https://placehold.co/600x800?text=No+Image';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        });
+    });
+
+    const closeModalFunc = () => {
+        modal.classList.add('opacity-0');
+        modalContent.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 300);
+    };
+
+    document.getElementById('closeModal').addEventListener('click', closeModalFunc);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFunc(); });
+
+    // Initial load
     applyFilters();
 });
-
-const modal = document.getElementById('productModal');
-const modalContent = document.getElementById('modalContent');
-
-document.querySelectorAll('.product-row').forEach(row => {
-    row.addEventListener('click', function() {
-        document.getElementById('modalNama').textContent = this.dataset.nama;
-        document.getElementById('modalJenis').textContent = this.dataset.jenis;
-        document.getElementById('modalUkuran').textContent = this.dataset.ukuran;
-        document.getElementById('modalBahan').textContent = this.dataset.bahan;
-        document.getElementById('modalMotif').textContent = this.dataset.motif;
-        document.getElementById('modalHarga').textContent = this.dataset.harga;
-        document.getElementById('modalDeskripsi').textContent = this.dataset.deskripsi;
-
-        let gambar = this.dataset.gambar;
-        document.getElementById('modalImage').src = gambar && gambar.trim() !== '' ? gambar : 'https://placehold.co/600x800?text=No+Image';
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modalContent.classList.remove('scale-95');
-        }, 10);
-    });
-});
-
-const closeModalFunc = () => {
-    modal.classList.add('opacity-0');
-    modalContent.classList.add('scale-95');
-    setTimeout(() => {
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-    }, 300);
-};
-
-document.getElementById('closeModal').addEventListener('click', closeModalFunc);
-modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFunc(); });
 </script>
 @endsection
