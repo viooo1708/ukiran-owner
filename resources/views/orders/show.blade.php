@@ -87,28 +87,34 @@
             </div>
 
             {{-- Produk --}}
-            <div class="rounded-2xl bg-white border border-[#eadfd8] shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-[#e5ddd8] bg-[#faf8f5]">
-                    <h2 class="text-base font-bold text-[#3e2723]">Detail Produk</h2>
-                </div>
+<div class="rounded-2xl bg-white border border-[#eadfd8] shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-[#e5ddd8] bg-[#faf8f5]">
+        <h2 class="text-base font-bold text-[#3e2723]">Detail Produk</h2>
+    </div>
 
-                <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div class="space-y-1">
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Nama Produk</p>
-                        <p class="text-sm font-bold text-[#3e2723]">{{ $order['product']['nama_product'] ?? '-' }}</p>
-                    </div>
+    <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="space-y-1">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Nama Produk</p>
+            <p class="text-sm font-bold text-[#3e2723]">
+                {{ $order['product']['nama_product'] ?? ($order['nama_custom'] ?? '-') }}
+            </p>
+        </div>
 
-                    <div class="space-y-1">
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Jenis Ukiran</p>
-                        <p class="text-sm font-semibold text-gray-800">{{ $order['product']['jenis_ukiran'] ?? '-' }}</p>
-                    </div>
+        <div class="space-y-1">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Jenis Ukiran</p>
+            <p class="text-sm font-semibold text-gray-800">
+                {{ $order['product']['jenis_ukiran'] ?? ($order['specification']['motif_ukiran'] ?? '-') }}
+            </p>
+        </div>
 
-                    <div class="space-y-1">
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Bahan Produk</p>
-                        <p class="text-sm font-semibold text-gray-800">{{ $order['product']['bahan'] ?? '-' }}</p>
-                    </div>
-                </div>
-            </div>
+        <div class="space-y-1">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Bahan Produk</p>
+            <p class="text-sm font-semibold text-gray-800">
+                {{ $order['product']['bahan'] ?? ($order['specification']['material'] ?? '-') }}
+            </p>
+        </div>
+    </div>
+</div>
 
             {{-- Spesifikasi --}}
             @if(isset($order['specification']))
@@ -131,11 +137,6 @@
                     <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-4 flex justify-between items-center">
                         <span class="text-sm font-medium text-gray-500">Motif</span>
                         <span class="text-sm font-bold text-gray-800">{{ $order['specification']['motif'] ?? '-' }}</span>
-                    </div>
-
-                    <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-4 flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-500">Finishing</span>
-                        <span class="text-sm font-bold text-gray-800">{{ $order['specification']['finishing'] ?? '-' }}</span>
                     </div>
                 </div>
             </div>

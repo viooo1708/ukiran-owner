@@ -105,17 +105,21 @@ async function loadNotifications() {
         const list = document.getElementById('notificationList');
 
         if (result.data && result.data.length > 0) {
-            list.innerHTML = result.data.map(n => `
-                <div onclick="markAsRead(${n.id})" class="p-4 border-b border-gray-100/50 cursor-pointer transition-colors ${n.is_read ? 'bg-white hover:bg-[#faf8f5]' : 'bg-[#faf8f5] hover:bg-[#f5f0ec]'}">
-                    <div class="flex justify-between items-start gap-2">
-                        <p class="font-bold text-xs leading-relaxed ${n.is_read ? 'text-gray-600' : 'text-[#3e2723]'}">
-                            ${n.title}
-                        </p>
-                        ${n.is_read ? '' : '<span class="shrink-0 w-2 h-2 rounded-full bg-rose-500 mt-1 shadow-sm shadow-rose-500/40 animate-pulse"></span>'}
+            list.innerHTML = result.data.map(n => {
+                // Pastikan order_id benar-benar dikirim sebagai angka atau string ID yang valid
+                const orderId = n.order_id ? n.order_id : 'null';
+                return `
+                    <div onclick="markAsReadAndRedirect(${n.id}, ${orderId})" class="p-4 border-b border-gray-100/50 cursor-pointer transition-colors ${n.is_read ? 'bg-white hover:bg-[#faf8f5]' : 'bg-[#faf8f5] hover:bg-[#f5f0ec]'}">
+                        <div class="flex justify-between items-start gap-2">
+                            <p class="font-bold text-xs leading-relaxed ${n.is_read ? 'text-gray-600' : 'text-[#3e2723]'}">
+                                ${n.title}
+                            </p>
+                            ${n.is_read ? '' : '<span class="shrink-0 w-2 h-2 rounded-full bg-rose-500 mt-1 shadow-sm shadow-rose-500/40 animate-pulse"></span>'}
+                        </div>
+                        <p class="text-[11px] leading-relaxed ${n.is_read ? 'text-gray-400' : 'text-gray-500'} mt-1">${n.message}</p>
                     </div>
-                    <p class="text-[11px] leading-relaxed ${n.is_read ? 'text-gray-400' : 'text-gray-500'} mt-1">${n.message}</p>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             const hasUnread = result.data.some(n => n.is_read == 0);
             document.getElementById('notiBadge').classList.toggle('hidden', !hasUnread);
@@ -130,6 +134,31 @@ async function loadNotifications() {
     } catch (e) {
         console.error("Error memuat notifikasi:", e);
         document.getElementById('notificationList').innerHTML = '<div class="p-4 text-center text-xs text-rose-500">Gagal memuat notifikasi.</div>';
+    }
+}
+
+// Perbarui fungsi redirect untuk menangani parameter angka ID secara langsung
+async function markAsReadAndRedirect(id, orderId) {
+    const token = "{{ Session::get('token') }}";
+    try {
+        await fetch(`http://127.0.0.1:1000/api/notifications/${id}/read`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+
+        // Cek apakah orderId ada dan bukan null
+        if (orderId && orderId !== 'null' && orderId !== null) {
+            window.location.href = `/orders/${orderId}`;
+        } else {
+            window.location.href = '/orders';
+        }
+    } catch (e) {
+        console.error("Gagal menandai dibaca:", e);
+        window.location.href = '/orders';
     }
 }
 

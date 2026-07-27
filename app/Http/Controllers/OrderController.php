@@ -99,28 +99,27 @@ class OrderController extends Controller
     }
 
     public function updateProduction(Request $request, $id)
-    {
-        $request->validate([
-            // Samakan juga list-nya di sini
-            'tahap_produksi' => 'required|in:persiapan,pengukiran,finishing,selesai'
+{
+    $request->validate([
+        'tahap_produksi' => 'required|in:persiapan,pengukiran,finishing'
+    ]);
+
+    try {
+        // Ubah key 'tahap_produksi' menjadi 'status' agar cocok dengan ProductStatusController di Backend API
+        $response = $this->api->put("/orders/{$id}/production-status", [
+            'status' => $request->tahap_produksi
         ]);
 
-        try {
-            // Kirim perubahan status produksi ke Backend API Anda
-            $response = $this->api->put("/orders/{$id}/production-status", [
-                'tahap_produksi' => $request->tahap_produksi
-            ]);
-
-            if ($response->successful()) {
-                return redirect()->back()->with('success', 'Tahap produksi berhasil diperbarui!');
-            }
-
-            return redirect()->back()->with('error', 'Gagal memperbarui tahap produksi di server.');
-
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan sistem koneksi API.');
+        if ($response->successful()) {
+            return redirect()->back()->with('success', 'Tahap produksi berhasil diperbarui!');
         }
+
+        return redirect()->back()->with('error', 'Gagal memperbarui tahap produksi di server.');
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Terjadi kesalahan sistem koneksi API.');
     }
+}
 
     /**
      * Update status pesanan.
@@ -131,7 +130,7 @@ class OrderController extends Controller
             'status_pesanan' => 'required|in:menunggu_konfirmasi,diproses,dibatalkan,selesai',
             'estimasi_biaya' => 'nullable|numeric',
             'estimasi_waktu' => 'nullable|string|max:100',
-            'tahap_produksi' => 'nullable|in:persiapan,pengukiran,finishing,selesai',
+            'tahap_produksi' => 'nullable|in:persiapan,pengukiran,finishing',
             'catatan'        => 'nullable|string',
         ]);
 
@@ -145,7 +144,7 @@ class OrderController extends Controller
 
             // HANYA SERTAKAN tahap_produksi jika status pesanannya benar-benar 'diproses'
             if ($request->status_pesanan === 'diproses') {
-                $dataPayload['tahap_produksi'] = $request->tahap_produksi;
+                $dataPayload['status'] = $request->tahap_produksi; // Ubah dari 'tahap_produksi' ke 'status'
             }
 
             $response = $this->api->put("/orders/$id", $dataPayload);

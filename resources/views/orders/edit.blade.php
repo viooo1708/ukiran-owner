@@ -50,7 +50,9 @@
 
                 <div class="flex justify-between items-center py-3.5">
                     <span class="font-medium text-gray-500">Produk</span>
-                    <span class="font-semibold text-[#5d4037]">{{ $order['product']['nama_product'] ?? '-' }}</span>
+                    <span class="font-semibold text-[#5d4037]">
+                        {{ $order['product']['nama_product'] ?? ($order['nama_custom'] ?? '-') }}
+                    </span>
                 </div>
 
                 <div class="flex justify-between items-center py-3.5 last:pb-0">
@@ -75,10 +77,6 @@
                         <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-3.5">
                             <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Material</p>
                             <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ $order['specification']['material'] ?? '-' }}</p>
-                        </div>
-                        <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-3.5">
-                            <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Finishing</p>
-                            <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ $order['specification']['finishing'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-3.5">
                             <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Catatan Klien</p>
@@ -180,9 +178,6 @@
                         </option>
                         <option value="finishing" {{ $activeTahap == 'finishing' ? 'selected' : '' }}>
                             ✨ Finishing
-                        </option>
-                        <option value="selesai" {{ $activeTahap == 'selesai' ? 'selected' : '' }}>
-                            ✅ Selesai
                         </option>
                     </select>
                 </div>
