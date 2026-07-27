@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,6 +34,14 @@ Route::middleware('owner')->group(function () {
             'edit',
             'update'
     ]);
+
+    Route::get('/orders/{id}/chats', [OrderController::class, 'getChats'])->name('orders.chats.get');
+    Route::post('/orders/{id}/chats', [OrderController::class, 'storeChat'])->name('orders.chats.store');
+
+    Route::get('/orders/{order}/chat-view', function (Order $order) {
+        return view('orders.show', compact('order'));
+    })->name('owner.orders.chat');
+
     Route::post('/products/attributes', [ProductController::class, 'storeAttribute'])->name('products.attributes.store');
     Route::put('/orders/{id}/update-production', [OrderController::class, 'updateProduction'])->name('orders.update-production');
     Route::get('/reports', [ReportController::class, 'index'])

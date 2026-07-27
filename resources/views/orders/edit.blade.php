@@ -55,10 +55,18 @@
                     </span>
                 </div>
 
-                <div class="flex justify-between items-center py-3.5 last:pb-0">
+                <div class="flex justify-between items-center py-3.5">
                     <span class="font-medium text-gray-500">Estimasi Biaya Saat Ini</span>
                     <span class="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
                         Rp {{ number_format($order['estimasi_biaya'] ?? 0, 0, ',', '.') }}
+                    </span>
+                </div>
+
+                {{-- Informasi DP Saat Ini --}}
+                <div class="flex justify-between items-center py-3.5 last:pb-0">
+                    <span class="font-medium text-gray-500">Jumlah DP (Uang Muka)</span>
+                    <span class="font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                        Rp {{ number_format($order['jumlah_dp'] ?? 0, 0, ',', '.') }}
                     </span>
                 </div>
 
@@ -116,6 +124,38 @@
                             class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all font-semibold text-gray-800"
                             placeholder="Nominal biaya">
                     </div>
+                </div>
+
+                {{-- Jumlah DP (Uang Muka) --}}
+                <div>
+                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Jumlah DP (Uang Muka) (Rp)
+                    </label>
+                    <div class="relative rounded-xl shadow-sm">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <span class="text-xs font-bold text-gray-400">Rp</span>
+                        </div>
+                        <input
+                            type="number"
+                            name="jumlah_dp"
+                            value="{{ old('jumlah_dp', $order['jumlah_dp'] ?? '') }}"
+                            class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all font-semibold text-gray-800"
+                            placeholder="Nominal DP yang dibayar">
+                    </div>
+                </div>
+
+                {{-- Status Pembayaran --}}
+                <div>
+                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Status Pembayaran
+                    </label>
+                    <select
+                        name="status_pembayaran"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all bg-white font-medium text-gray-800">
+                        <option value="belum_bayar" {{ old('status_pembayaran', $order['status_pembayaran'] ?? '') == 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                        <option value="dp_dibayar" {{ old('status_pembayaran', $order['status_pembayaran'] ?? '') == 'dp_dibayar' ? 'selected' : '' }}>DP Dibayar</option>
+                        <option value="lunas" {{ old('status_pembayaran', $order['status_pembayaran'] ?? '') == 'lunas' ? 'selected' : '' }}>Lunas</option>
+                    </select>
                 </div>
 
                 {{-- Estimasi Waktu --}}
