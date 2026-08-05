@@ -65,7 +65,7 @@
             <table class="w-full border-collapse text-left text-sm" id="orderTable">
                 <thead>
                     <tr class="bg-[#faf7f4] text-gray-500 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
-                        <th class="py-4 px-6">ID</th>
+                        <!-- <th class="py-4 px-6">ID</th> -->
                         <th class="py-4 px-6">Pelanggan</th>
                         <th class="py-4 px-6">Produk</th>
                         <th class="py-4 px-6">Estimasi Biaya</th>
@@ -77,9 +77,9 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($orders as $order)
                     <tr class="hover:bg-[#faf7f4]/60 transition-colors order-row" data-status="{{ strtolower($order['status_pesanan'] ?? '') }}">
-                        <td class="px-6 py-4 font-mono text-xs font-bold text-[#5d4037]">
+                        <!-- <td class="px-6 py-4 font-mono text-xs font-bold text-[#5d4037]">
                             #{{ $order['id'] }}
-                        </td>
+                        </td> -->
                         <td class="px-6 py-4">
                             <div class="max-w-xs truncate">
                                 <p class="font-bold text-sm text-gray-900">{{ $order['user']['nama'] ?? '-' }}</p>
