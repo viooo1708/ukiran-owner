@@ -88,7 +88,22 @@
                         </td>
                         <td class="px-6 py-4">
                             <span class="text-sm font-semibold text-gray-800">
-                                {{ $order['product']['nama_product'] ?? ($order['nama_custom'] ?? 'Pesanan Custom') }}
+                                @php
+                                    $orderItems = is_array($order) ? ($order['order_items'] ?? ($order['items'] ?? [])) : ($order->orderItems ?? ($order->items ?? []));
+                                    if(empty($orderItems) && (is_array($order) ? (isset($order['product']) || isset($order['nama_custom'])) : (isset($order->product) || isset($order->nama_custom)))) {
+                                        $orderItems = [$order];
+                                    }
+                                @endphp
+
+                                @if(count($orderItems) > 0)
+                                    {{ collect($orderItems)->map(function($item) {
+                                        $name = is_array($item) ? ($item['product']['nama_product'] ?? ($item['nama_custom'] ?? 'Pesanan Custom')) : ($item->product->nama_product ?? ($item->nama_custom ?? 'Pesanan Custom'));
+                                        $qty = is_array($item) ? ($item['jumlah'] ?? 1) : ($item->jumlah ?? 1);
+                                        return "{$name} ({$qty}x)";
+                                    })->implode(', ') }}
+                                @else
+                                    Pesanan Custom
+                                @endif
                             </span>
                         </td>
                         <td class="px-6 py-4">
@@ -280,7 +295,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Tombol Nomor Halaman
         for (let i = 1; i <= totalPages; i++) {
-            // Batasi tampilan nomor halaman jika terlalu banyak (opsional, tampilkan semua jika di bawah 10 halaman)
             const pageButton = document.createElement('button');
             pageButton.innerText = i;
             pageButton.className = `px-3 py-1.5 rounded-lg border font-bold transition-colors ${currentPage === i ? 'bg-[#5d4037] text-white border-[#5d4037]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`;

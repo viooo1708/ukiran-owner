@@ -120,37 +120,78 @@
     </div>
 
     {{-- Filter Section (SEMBUNYI SAAT CETAK) --}}
-    <div class="no-print bg-white p-4 rounded-2xl border border-[#eadfd8] shadow-sm">
-        <form action="{{ route('reports.index') }}" method="GET" class="flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <div class="relative w-full sm:w-auto">
-                        <span class="text-xs text-gray-400 block mb-1 font-medium">Dari Tanggal</span>
-                        <input
-                            type="date"
-                            name="tanggal_mulai"
-                            value="{{ $tanggal_mulai ?? request('tanggal_mulai') }}"
-                            class="w-full sm:w-auto rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037]"
-                        >
-                    </div>
-                    <span class="text-gray-400 text-xs font-bold uppercase self-end pb-2.5">s/d</span>
-                    <div class="relative w-full sm:w-auto">
-                        <span class="text-xs text-gray-400 block mb-1 font-medium">Sampai Tanggal</span>
-                        <input
-                            type="date"
-                            name="tanggal_selesai"
-                            value="{{ $tanggal_selesai ?? request('tanggal_selesai') }}"
-                            class="w-full sm:w-auto rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037]"
-                        >
-                    </div>
+    <div class="no-print bg-white p-5 rounded-2xl border border-[#eadfd8] shadow-sm">
+        <form action="{{ route('reports.index') }}" method="GET" class="space-y-4">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {{-- Tanggal Mulai --}}
+                <div class="relative">
+                    <span class="text-xs text-gray-400 block mb-1 font-medium">Dari Tanggal</span>
+                    <input
+                        type="date"
+                        name="tanggal_mulai"
+                        value="{{ request('tanggal_mulai') }}"
+                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037]"
+                    >
                 </div>
 
-                <div class="flex items-center gap-2 w-full sm:w-auto self-end">
-                    <button type="submit" class="w-full sm:w-auto bg-gray-800 hover:bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors shadow-sm">
+                {{-- Tanggal Selesai --}}
+                <div class="relative">
+                    <span class="text-xs text-gray-400 block mb-1 font-medium">Sampai Tanggal</span>
+                    <input
+                        type="date"
+                        name="tanggal_selesai"
+                        value="{{ request('tanggal_selesai') }}"
+                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037]"
+                    >
+                </div>
+
+                {{-- Filter Status --}}
+                <div class="relative">
+                    <span class="text-xs text-gray-400 block mb-1 font-medium">Status Pesanan</span>
+                    <select name="status" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] bg-white">
+                        <option value="">Semua Status</option>
+                        <option value="menunggu_konfirmasi" {{ request('status') == 'menunggu_konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
+                        <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
+                        <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                        <option value="dibatalkan" {{ request('status') == 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                    </select>
+                </div>
+
+                {{-- Filter Kriya Ukir / Produk --}}
+                <div class="relative">
+                    <span class="text-xs text-gray-400 block mb-1 font-medium">Kriya Ukir / Produk</span>
+                    <select name="product_id" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037] bg-white">
+                        <option value="">Semua Karya Ukir</option>
+                        @if(isset($productsList) && $productsList->count() > 0)
+                            @foreach($productsList as $prod)
+                                <option value="{{ $prod->id }}" {{ request('product_id') == $prod->id ? 'selected' : '' }}>
+                                    {{ $prod->nama_product }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-gray-100">
+                {{-- Filter Berdasarkan Pelanggan (Search Nama Pelanggan) --}}
+                <div class="w-full sm:w-72">
+                    <input
+                        type="text"
+                        name="pelanggan"
+                        value="{{ request('pelanggan') }}"
+                        placeholder="Cari nama pelanggan..."
+                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5d4037]/20 focus:border-[#5d4037]"
+                    >
+                </div>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors shadow-sm">
                         <span class="material-symbols-outlined text-sm">filter_alt</span>
                         Terapkan Filter
                     </button>
-                    @if(request('tanggal_mulai') || request('tanggal_selesai'))
+                    @if(request('tanggal_mulai') || request('tanggal_selesai') || request('status') || request('product_id') || request('pelanggan'))
                         <a href="{{ route('reports.index') }}" class="text-xs text-rose-600 hover:underline font-medium px-2 py-1">
                             Reset Filter
                         </a>
@@ -228,7 +269,7 @@
                                 {{ $order['user']['nama'] ?? '-' }}
                             </td>
                             <td class="py-4 px-6 text-gray-600 print:text-black">
-                                {{ $order['product']['nama_product'] ?? '-' }}
+                                {{ $order['product']['nama_product'] ?? $order['nama_custom'] ?? 'Pesanan Custom' }}
                             </td>
                             <td class="py-4 px-6 text-center">
                                 @php

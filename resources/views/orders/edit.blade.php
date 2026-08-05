@@ -34,67 +34,80 @@
                 <div class="flex justify-between items-center py-3.5 first:pt-0">
                     <span class="font-medium text-gray-500">ID Pesanan</span>
                     <span class="font-mono font-bold text-[#5d4037] bg-[#efebe9] px-2.5 py-1 rounded-lg border border-[#d7ccc8]">
-                        #{{ $order['id'] }}
+                        #{{ is_array($order) ? ($order['id'] ?? '-') : ($order->id ?? '-') }}
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center py-3.5">
+                    <span class="font-medium text-gray-500">Kode Pesanan</span>
+                    <span class="font-mono font-bold text-[#5d4037]">
+                        {{ is_array($order) ? ($order['kode_pesanan'] ?? '-') : ($order->kode_pesanan ?? '-') }}
                     </span>
                 </div>
 
                 <div class="flex justify-between items-center py-3.5">
                     <span class="font-medium text-gray-500">Pelanggan</span>
-                    <span class="font-bold text-gray-800">{{ $order['user']['nama'] ?? '-' }}</span>
+                    @php
+                        $user = is_array($order) ? ($order['user'] ?? null) : ($order->user ?? null);
+                    @endphp
+                    <span class="font-bold text-gray-800">{{ is_array($user) ? ($user['nama'] ?? ($user['name'] ?? '-')) : ($user->nama ?? ($user->name ?? '-')) }}</span>
                 </div>
 
                 <div class="flex justify-between items-center py-3.5">
                     <span class="font-medium text-gray-500">Email</span>
-                    <span class="text-gray-600">{{ $order['user']['email'] ?? '-' }}</span>
+                    <span class="text-gray-600">{{ is_array($user) ? ($user['email'] ?? '-') : ($user->email ?? '-') }}</span>
                 </div>
 
-                <div class="flex justify-between items-center py-3.5">
-                    <span class="font-medium text-gray-500">Produk</span>
-                    <span class="font-semibold text-[#5d4037]">
-                        {{ $order['product']['nama_product'] ?? ($order['nama_custom'] ?? '-') }}
-                    </span>
+                {{-- Daftar Produk Pesanan (Multi-Item / Keranjang) --}}
+                <div class="py-4">
+                    <span class="font-medium text-gray-500 block mb-2">Daftar Produk Pesanan</span>
+                    @php
+                        $orderItems = is_array($order)
+                            ? ($order['order_items'] ?? ($order['items'] ?? []))
+                            : ($order->orderItems ?? ($order->items ?? []));
+
+                        if(empty($orderItems) && (is_array($order) ? (isset($order['product']) || isset($order['nama_custom'])) : (isset($order->product) || isset($order->nama_custom)))) {
+                            $orderItems = [$order];
+                        }
+                    @endphp
+
+                    <div class="space-y-2.5">
+                        @forelse($orderItems as $item)
+                            @php
+                                $pName = is_array($item) ? ($item['product']['nama_product'] ?? ($item['nama_custom'] ?? 'Produk Custom')) : ($item->product->nama_product ?? ($item->nama_custom ?? 'Produk Custom'));
+                                $qty = is_array($item) ? ($item['jumlah'] ?? 1) : ($item->jumlah ?? 1);
+                                $sub = is_array($item) ? ($item['subtotal'] ?? ($item['estimasi_biaya'] ?? 0)) : ($item->subtotal ?? ($item->estimasi_biaya ?? 0));
+                                $dimen = is_array($item) ? ($item['ukuran'] ?? ($item['specification']['ukuran'] ?? '-')) : ($item->ukuran ?? ($item->specification->ukuran ?? '-'));
+                                $mat = is_array($item) ? ($item['material'] ?? ($item['specification']['material'] ?? '-')) : ($item->material ?? ($item->specification->material ?? '-'));
+                            @endphp
+                            <div class="p-3 bg-[#faf8f5] border border-[#eadfd8] rounded-xl text-xs space-y-1">
+                                <div class="flex justify-between font-bold text-[#3e2723]">
+                                    <span>{{ $pName }} ({{ $qty }} Pcs)</span>
+                                    @if($sub > 0)
+                                        <span class="text-amber-700">Rp {{ number_format($sub, 0, ',', '.') }}</span>
+                                    @endif
+                                </div>
+                                <p class="text-gray-500">Ukuran: {{ $dimen }} | Material: {{ $mat }}</p>
+                            </div>
+                        @empty
+                            <p class="text-xs text-gray-400 italic">Tidak ada produk.</p>
+                        @endforelse
+                    </div>
                 </div>
 
                 <div class="flex justify-between items-center py-3.5">
                     <span class="font-medium text-gray-500">Estimasi Biaya Saat Ini</span>
                     <span class="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                        Rp {{ number_format($order['estimasi_biaya'] ?? 0, 0, ',', '.') }}
+                        Rp {{ number_format(is_array($order) ? ($order['estimasi_biaya'] ?? 0) : ($order->estimasi_biaya ?? 0), 0, ',', '.') }}
                     </span>
                 </div>
 
-                {{-- Informasi DP Saat Ini --}}
                 <div class="flex justify-between items-center py-3.5 last:pb-0">
                     <span class="font-medium text-gray-500">Jumlah DP (Uang Muka)</span>
                     <span class="font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                        Rp {{ number_format($order['jumlah_dp'] ?? 0, 0, ',', '.') }}
+                        Rp {{ number_format(is_array($order) ? ($order['jumlah_dp'] ?? 0) : ($order->jumlah_dp ?? 0), 0, ',', '.') }}
                     </span>
                 </div>
-
-                {{-- Spesifikasi Tambahan --}}
-                @if(isset($order['specification']))
-                <div class="pt-6 mt-4 border-t border-gray-100">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#3e2723] mb-3.5 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm text-[#5d4037]">extension</span>
-                        Spesifikasi Kustom Produk
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-3.5">
-                            <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Ukuran</p>
-                            <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ $order['specification']['ukuran'] ?? '-' }}</p>
-                        </div>
-                        <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-3.5">
-                            <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Material</p>
-                            <p class="text-sm font-semibold text-gray-800 mt-0.5">{{ $order['specification']['material'] ?? '-' }}</p>
-                        </div>
-                        <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-3.5">
-                            <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Catatan Klien</p>
-                            <p class="text-sm font-semibold text-gray-800 mt-0.5 truncate" title="{{ $order['specification']['catatan'] ?? '-' }}">
-                                {{ $order['specification']['catatan'] ?? '-' }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
 
