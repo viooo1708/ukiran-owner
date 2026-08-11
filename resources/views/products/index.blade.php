@@ -3,15 +3,28 @@
 @section('content')
 
 <div class="max-w-7xl mx-auto space-y-8 animate-fade-in text-gray-800 pb-12">
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-[#e5ddd8]">
+    {{-- Header Section --}}
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-[#3e2723] tracking-tight">
                 Katalog Produk
             </h1>
-            <p class="text-sm text-gray-500 mt-1">
+            <p class="text-sm sm:text-base text-gray-500 mt-1">
                 Kelola portofolio dan produk seni ukiran kelas premium yang tersedia untuk pelanggan.
             </p>
+        </div>
+
+        {{-- Date Badge (Opsional, disamakan dengan Dashboard agar konsisten) --}}
+        <div class="flex items-center gap-3 bg-white border border-[#eadfd8] px-4 py-2.5 rounded-xl shadow-sm self-start md:self-auto">
+            <span class="material-symbols-outlined text-[#6d4c41]">calendar_today</span>
+            <div>
+                <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider leading-none">
+                    Hari Ini
+                </p>
+                <p class="text-sm font-bold text-[#5d4037] leading-tight mt-0.5">
+                    {{ now()->translatedFormat('d F Y') }}
+                </p>
+            </div>
         </div>
     </div>
 
@@ -19,14 +32,14 @@
     <div class="bg-white rounded-2xl border border-[#eadfd8] shadow-sm overflow-hidden">
 
         {{-- Filter & Search Toolbar --}}
-        <div class="p-6 flex flex-col gap-6 bg-[#faf8f5] border-b border-[#e5ddd8]">
+        <div class="p-6 flex flex-col gap-6 bg-[#faf8f5] border-b border-gray-100">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-base font-bold text-[#3e2723]">
+                    <h3 class="font-bold text-lg text-[#3e2723]">
                         Daftar Produk
-                    </h2>
-                    <p class="text-xs text-gray-500 mt-0.5 font-semibold">
-                        Total: <span class="text-[#5d4037] font-bold bg-[#efebe9] px-2 py-0.5 rounded border border-[#d7ccc8]" id="totalCount">{{ count($products) }}</span> Koleksi Terdaftar
+                    </h3>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                        Total: <span class="text-[#5d4037] font-bold bg-[#efebe9] px-2.5 py-0.5 rounded-full border border-[#d7ccc8]" id="totalCount">{{ count($products) }}</span> Koleksi Terdaftar
                     </p>
                 </div>
 
@@ -34,13 +47,13 @@
                 <div class="flex items-center gap-2.5 w-full md:w-auto">
                     <div class="relative w-full md:w-80">
                         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 flex items-center pointer-events-none">
-                            <span class="material-symbols-outlined text-lg">search</span>
+                            <span class="material-symbols-outlined text-sm">search</span>
                         </span>
                         <input
                             type="text"
                             id="searchProduct"
                             placeholder="Cari nama, jenis, atau bahan..."
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] shadow-sm transition-all placeholder:text-gray-400">
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] shadow-sm transition-all placeholder:text-gray-400">
                     </div>
 
                     {{-- Tombol Tambah Produk Minimalis (Icon Button) --}}
@@ -56,7 +69,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:flex lg:flex-wrap items-end gap-3 pt-4 border-t border-gray-200/60">
                 <div class="flex flex-col gap-1.5 lg:w-44">
                     <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Jenis Ukiran</label>
-                    <select id="filterJenis" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all">
+                    <select id="filterJenis" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all cursor-pointer">
                         <option value="">Semua Jenis</option>
                         @foreach($jenis_ukiranOptions as $opt)
                             <option value="{{ $opt['value'] }}">{{ $opt['value'] }}</option>
@@ -66,7 +79,7 @@
 
                 <div class="flex flex-col gap-1.5 lg:w-44">
                     <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Bahan Utama</label>
-                    <select id="filterBahan" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all">
+                    <select id="filterBahan" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all cursor-pointer">
                         <option value="">Semua Bahan</option>
                         @foreach($bahanOptions as $opt)
                             <option value="{{ $opt['value'] }}">{{ $opt['value'] }}</option>
@@ -76,7 +89,7 @@
 
                 <div class="flex flex-col gap-1.5 lg:w-44">
                     <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Motif Ornamen</label>
-                    <select id="filterMotif" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all">
+                    <select id="filterMotif" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all cursor-pointer">
                         <option value="">Semua Motif</option>
                         @foreach($motifOptions as $opt)
                             <option value="{{ $opt['value'] }}">{{ $opt['value'] }}</option>
@@ -86,7 +99,7 @@
 
                 <div class="flex flex-col gap-1.5 lg:w-44">
                     <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Dimensi / Ukuran</label>
-                    <select id="filterUkuran" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all">
+                    <select id="filterUkuran" class="filter-select w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#5d4037]/10 focus:border-[#5d4037] transition-all cursor-pointer">
                         <option value="">Semua Ukuran</option>
                         @foreach($ukuranOptions as $opt)
                             <option value="{{ $opt['value'] }}">{{ $opt['value'] }}</option>
@@ -130,7 +143,7 @@
 
                         {{-- Image Column --}}
                         <td class="py-4 px-6">
-                            <div class="w-14 h-14 mx-auto rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50 flex items-center justify-center relative">
+                            <div class="w-12 h-12 mx-auto rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50 flex items-center justify-center relative">
                                 @if(!empty($product['gambar']))
                                     <img src="{{ $product['gambar'] }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="{{ $product['nama_product'] }}">
                                 @else
@@ -165,13 +178,15 @@
                         </td>
 
                         {{-- Pricing Column --}}
-                        <td class="py-4 px-6 font-bold text-emerald-700 text-sm">
-                            Rp {{ number_format($product['estimasi_harga'], 0, ',', '.') }}
+                        <td class="py-4 px-6 font-bold text-emerald-700 text-xs">
+                            <span class="inline-flex items-center rounded-lg bg-emerald-50 px-2.5 py-1 border border-emerald-200">
+                                Rp {{ number_format($product['estimasi_harga'], 0, ',', '.') }}
+                            </span>
                         </td>
 
                         {{-- Actions Group Column --}}
                         <td class="py-4 px-6 text-center">
-                            <div class="flex justify-center gap-2">
+                            <div class="flex justify-center items-center gap-1.5">
                                 {{-- Edit --}}
                                 <a onclick="event.stopPropagation();"
                                    href="{{ route('products.edit', $product['id']) }}"
@@ -217,7 +232,7 @@
         </div>
 
         {{-- Pagination Container --}}
-        <div id="paginationContainer" class="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-gray-100 bg-[#faf8f5] text-xs">
+        <div id="paginationContainer" class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-gray-100 bg-[#faf8f5] text-xs">
             <span id="paginationInfo" class="text-gray-500 mb-3 sm:mb-0 font-medium">Menampilkan 0 dari 0 data</span>
             <div id="paginationButtons" class="flex items-center gap-1.5">
                 {{-- Tombol halaman akan di-generate otomatis via JS --}}
@@ -299,12 +314,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const totalCount   = document.getElementById('totalCount');
     const noResultRow  = document.getElementById('noResultRow');
 
-    // Nodes untuk Pagination
     const paginationInfo    = document.getElementById('paginationInfo');
     const paginationButtons = document.getElementById('paginationButtons');
 
     const rowsNodeList = document.querySelectorAll('#productTable tbody tr.product-row');
-    const rows = Array.from(rowsNodeList); // Konversi ke array
+    const rows = Array.from(rowsNodeList);
 
     let currentPage = 1;
     const rowsPerPage = 10;
@@ -316,7 +330,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const motif  = filterMotif.value;
         const ukuran = filterUkuran.value;
 
-        // 1. Dapatkan baris yang cocok dengan filter
         const filteredRows = rows.filter(row => {
             const matchSearch = !search || row.innerText.toLowerCase().includes(search);
             const matchJenis  = !jenis  || row.dataset.jenis  === jenis;
@@ -327,7 +340,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return matchSearch && matchJenis && matchBahan && matchMotif && matchUkuran;
         });
 
-        // 2. Kalkulasi Halaman
         const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
         if (currentPage > totalPages && totalPages > 0) {
             currentPage = totalPages;
@@ -335,21 +347,17 @@ document.addEventListener('DOMContentLoaded', function () {
             currentPage = 1;
         }
 
-        // 3. Sembunyikan semua baris terlebih dahulu
         rows.forEach(row => row.style.display = 'none');
 
-        // 4. Tampilkan baris hanya untuk halaman saat ini
         const startIndex = (currentPage - 1) * rowsPerPage;
         const endIndex = startIndex + rowsPerPage;
         const visibleRows = filteredRows.slice(startIndex, endIndex);
 
         visibleRows.forEach(row => row.style.display = '');
 
-        // 5. Update Status Hitungan & Empty State
         totalCount.textContent = filteredRows.length;
         noResultRow.classList.toggle('hidden', filteredRows.length !== 0 || rows.length === 0);
 
-        // 6. Update Informasi Pagination & Tombol
         if (filteredRows.length > 0) {
             paginationInfo.innerText = `Menampilkan ${startIndex + 1} - ${Math.min(endIndex, filteredRows.length)} dari ${filteredRows.length} data`;
         } else {
@@ -362,9 +370,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderPaginationButtons(totalPages) {
         paginationButtons.innerHTML = '';
 
-        if (totalPages <= 1) return; // Jika cuma 1 halaman, tidak perlu tombol
+        if (totalPages <= 1) return;
 
-        // Tombol Prev
         const prevButton = document.createElement('button');
         prevButton.innerHTML = '&laquo; Prev';
         prevButton.className = `px-3 py-1.5 rounded-lg border font-bold transition-colors ${currentPage === 1 ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-200 hover:bg-[#5d4037] hover:text-white hover:border-[#5d4037]'}`;
@@ -377,7 +384,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         paginationButtons.appendChild(prevButton);
 
-        // Tombol Angka (Halaman)
         for (let i = 1; i <= totalPages; i++) {
             const pageButton = document.createElement('button');
             pageButton.innerText = i;
@@ -389,7 +395,6 @@ document.addEventListener('DOMContentLoaded', function () {
             paginationButtons.appendChild(pageButton);
         }
 
-        // Tombol Next
         const nextButton = document.createElement('button');
         nextButton.innerHTML = 'Next &raquo;';
         nextButton.className = `px-3 py-1.5 rounded-lg border font-bold transition-colors ${currentPage === totalPages ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-200 hover:bg-[#5d4037] hover:text-white hover:border-[#5d4037]'}`;
@@ -403,7 +408,6 @@ document.addEventListener('DOMContentLoaded', function () {
         paginationButtons.appendChild(nextButton);
     }
 
-    // Trigger pencarian dengan mereset halaman ke-1
     searchInput.addEventListener('keyup', () => {
         currentPage = 1;
         applyFilters();
@@ -426,7 +430,6 @@ document.addEventListener('DOMContentLoaded', function () {
         applyFilters();
     });
 
-    // Modal Script
     const modal = document.getElementById('productModal');
     const modalContent = document.getElementById('modalContent');
 
@@ -464,7 +467,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('closeModal').addEventListener('click', closeModalFunc);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFunc(); });
 
-    // Initial load
     applyFilters();
 });
 </script>

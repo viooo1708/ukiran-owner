@@ -22,6 +22,22 @@
         </a>
     </div>
 
+    @php
+        $statusPesananAktif = is_array($order) ? ($order['status_pesanan'] ?? '') : ($order->status_pesanan ?? '');
+        $isCancelled = ($statusPesananAktif === 'dibatalkan');
+    @endphp
+
+    {{-- Alert jika pesanan dibatalkan --}}
+    @if($isCancelled)
+        <div class="rounded-2xl bg-rose-50 border border-rose-200 p-4 text-rose-800 text-sm flex items-center gap-3">
+            <span class="material-symbols-outlined text-rose-600">error</span>
+            <div>
+                <span class="font-bold">Pesanan Telah Dibatalkan oleh Pelanggan.</span>
+                Formulir di bawah ini dikunci dan tidak dapat diubah kembali.
+            </div>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 items-start">
 
         {{-- Detail Pesanan Card --}}
@@ -117,7 +133,7 @@
                 Form Pembaruan Status
             </h2>
 
-            <form action="{{ route('orders.update', $order['id']) }}" method="POST" class="space-y-4">
+            <form action="{{ route('orders.update', is_array($order) ? $order['id'] : $order->id) }}" method="POST" class="space-y-4">
                 @csrf
                 @method('PUT')
 
@@ -133,8 +149,9 @@
                         <input
                             type="number"
                             name="estimasi_biaya"
-                            value="{{ old('estimasi_biaya', $order['estimasi_biaya'] ?? '') }}"
-                            class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all font-semibold text-gray-800"
+                            value="{{ old('estimasi_biaya', is_array($order) ? ($order['estimasi_biaya'] ?? '') : ($order->estimasi_biaya ?? '')) }}"
+                            {{ $isCancelled ? 'disabled' : '' }}
+                            class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all font-semibold text-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                             placeholder="Nominal biaya">
                     </div>
                 </div>
@@ -151,8 +168,9 @@
                         <input
                             type="number"
                             name="jumlah_dp"
-                            value="{{ old('jumlah_dp', $order['jumlah_dp'] ?? '') }}"
-                            class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all font-semibold text-gray-800"
+                            value="{{ old('jumlah_dp', is_array($order) ? ($order['jumlah_dp'] ?? '') : ($order->jumlah_dp ?? '')) }}"
+                            {{ $isCancelled ? 'disabled' : '' }}
+                            class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all font-semibold text-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                             placeholder="Nominal DP yang dibayar">
                     </div>
                 </div>
@@ -164,24 +182,46 @@
                     </label>
                     <select
                         name="status_pembayaran"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all bg-white font-medium text-gray-800">
-                        <option value="belum_bayar" {{ old('status_pembayaran', $order['status_pembayaran'] ?? '') == 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
-                        <option value="dp_dibayar" {{ old('status_pembayaran', $order['status_pembayaran'] ?? '') == 'dp_dibayar' ? 'selected' : '' }}>DP Dibayar</option>
-                        <option value="lunas" {{ old('status_pembayaran', $order['status_pembayaran'] ?? '') == 'lunas' ? 'selected' : '' }}>Lunas</option>
+                        {{ $isCancelled ? 'disabled' : '' }}
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all bg-white font-medium text-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        <option value="belum_bayar" {{ old('status_pembayaran', is_array($order) ? ($order['status_pembayaran'] ?? '') : ($order->status_pembayaran ?? '')) == 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                        <option value="dp_dibayar" {{ old('status_pembayaran', is_array($order) ? ($order['status_pembayaran'] ?? '') : ($order->status_pembayaran ?? '')) == 'dp_dibayar' ? 'selected' : '' }}>DP Dibayar</option>
+                        <option value="lunas" {{ old('status_pembayaran', is_array($order) ? ($order['status_pembayaran'] ?? '') : ($order->status_pembayaran ?? '')) == 'lunas' ? 'selected' : '' }}>Lunas</option>
                     </select>
+                </div>
+
+                {{-- Perkiraan Tanggal Selesai --}}
+                <div>
+                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Perkiraan Tanggal Selesai
+                    </label>
+                    @php
+                        $rawTglSelesai = is_array($order) ? ($order['estimasi_selesai'] ?? '') : ($order->estimasi_selesai ?? '');
+                        $formattedTglSelesai = $rawTglSelesai ? \Carbon\Carbon::parse($rawTglSelesai)->format('Y-m-d') : '';
+                    @endphp
+                    <input
+                        type="date"
+                        id="estimasi_selesai"
+                        name="estimasi_selesai"
+                        value="{{ old('estimasi_selesai', $formattedTglSelesai) }}"
+                        {{ $isCancelled ? 'disabled' : '' }}
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all font-semibold text-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
                 </div>
 
                 {{-- Estimasi Waktu --}}
                 <div>
-                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Estimasi Waktu Produksi
+                    <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 flex justify-between items-center">
+                        <span>Estimasi Waktu Produksi</span>
+                        <span class="text-[10px] text-gray-400 font-normal">*(Otomatis dari tanggal selesai)</span>
                     </label>
                     <input
                         type="text"
+                        id="estimasi_waktu"
                         name="estimasi_waktu"
-                        value="{{ old('estimasi_waktu', $order['estimasi_waktu'] ?? '') }}"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all"
-                        placeholder="Contoh: 7-14 hari kerja">
+                        value="{{ old('estimasi_waktu', is_array($order) ? ($order['estimasi_waktu'] ?? '') : ($order->estimasi_waktu ?? '')) }}"
+                        {{ $isCancelled ? 'disabled' : '' }}
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed bg-gray-50 font-medium text-gray-700"
+                        placeholder="Pilih tanggal selesai di atas...">
                 </div>
 
                 {{-- Status Pesanan --}}
@@ -192,17 +232,18 @@
                     <select
                         id="status_pesanan"
                         name="status_pesanan"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all bg-white font-medium text-gray-800">
-                        <option value="menunggu_konfirmasi" {{ old('status_pesanan', $order['status_pesanan'] ?? '') == 'menunggu_konfirmasi' ? 'selected' : '' }}>
+                        {{ $isCancelled ? 'disabled' : '' }}
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all bg-white font-medium text-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                        <option value="menunggu_konfirmasi" {{ old('status_pesanan', is_array($order) ? ($order['status_pesanan'] ?? '') : ($order->status_pesanan ?? '')) == 'menunggu_konfirmasi' ? 'selected' : '' }}>
                             Menunggu Konfirmasi
                         </option>
-                        <option value="diproses" {{ old('status_pesanan', $order['status_pesanan'] ?? '') == 'diproses' ? 'selected' : '' }}>
+                        <option value="diproses" {{ old('status_pesanan', is_array($order) ? ($order['status_pesanan'] ?? '') : ($order->status_pesanan ?? '')) == 'diproses' ? 'selected' : '' }}>
                             Diproses
                         </option>
-                        <option value="selesai" {{ old('status_pesanan', $order['status_pesanan'] ?? '') == 'selesai' ? 'selected' : '' }}>
+                        <option value="selesai" {{ old('status_pesanan', is_array($order) ? ($order['status_pesanan'] ?? '') : ($order->status_pesanan ?? '')) == 'selesai' ? 'selected' : '' }}>
                             Selesai
                         </option>
-                        <option value="dibatalkan" {{ old('status_pesanan', $order['status_pesanan'] ?? '') == 'dibatalkan' ? 'selected' : '' }}>
+                        <option value="dibatalkan" {{ old('status_pesanan', is_array($order) ? ($order['status_pesanan'] ?? '') : ($order->status_pesanan ?? '')) == 'dibatalkan' ? 'selected' : '' }}>
                             Dibatalkan
                         </option>
                     </select>
@@ -217,10 +258,11 @@
                     <select
                         id="tahap_produksi"
                         name="tahap_produksi"
+                        {{ $isCancelled ? 'disabled' : '' }}
                         class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all bg-white font-medium text-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
 
                         @php
-                            $activeTahap = old('tahap_produksi', $order['latest_status']['status'] ?? $order['tahap_produksi'] ?? 'persiapan');
+                            $activeTahap = old('tahap_produksi', is_array($order) ? ($order['latest_status']['status'] ?? ($order['tahap_produksi'] ?? 'persiapan')) : ($order->latest_status->status ?? ($order->tahap_produksi ?? 'persiapan')));
                         @endphp
 
                         <option value="persiapan" {{ $activeTahap == 'persiapan' ? 'selected' : '' }}>
@@ -243,17 +285,27 @@
                     <textarea
                         name="catatan"
                         rows="3"
-                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all placeholder:text-gray-400"
-                        placeholder="Tambahkan catatan progres detail pengerjaan ukiran/produk di sini...">{{ old('catatan', $order['catatan'] ?? '') }}</textarea>
+                        {{ $isCancelled ? 'disabled' : '' }}
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#5d4037] focus:ring-2 focus:ring-[#5d4037]/10 focus:outline-none transition-all placeholder:text-gray-400 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        placeholder="Tambahkan catatan progres detail pengerjaan ukiran/produk di sini...">{{ old('catatan', is_array($order) ? ($order['catatan'] ?? '') : ($order->catatan ?? '')) }}</textarea>
                 </div>
 
                 {{-- Submit Actions --}}
                 <div class="pt-3">
-                    <button
-                        type="submit"
-                        class="w-full inline-flex justify-center items-center rounded-xl bg-[#5d4037] hover:bg-[#3e2723] px-4 py-3 text-sm font-bold text-white shadow-sm transition-colors">
-                        Simpan Perubahan
-                    </button>
+                    @if(!$isCancelled)
+                        <button
+                            type="submit"
+                            class="w-full inline-flex justify-center items-center rounded-xl bg-[#5d4037] hover:bg-[#3e2723] px-4 py-3 text-sm font-bold text-white shadow-sm transition-colors">
+                            Simpan Perubahan
+                        </button>
+                    @else
+                        <button
+                            type="button"
+                            disabled
+                            class="w-full inline-flex justify-center items-center rounded-xl bg-gray-200 px-4 py-3 text-sm font-bold text-gray-400 cursor-not-allowed">
+                            Pesanan Dibatalkan (Tidak Dapat Disimpan)
+                        </button>
+                    @endif
                 </div>
             </form>
         </div>
@@ -261,13 +313,45 @@
     </div>
 </div>
 
-{{-- JavaScript Interaktif untuk Mengunci Tahap Produksi --}}
+{{-- Skrip JavaScript untuk Kalkulasi Otomatis & Penanganan Tahap Produksi --}}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const statusPesanan = document.getElementById("status_pesanan");
     const tahapProduksi = document.getElementById("tahap_produksi");
     const tahapWarning = document.getElementById("tahap_warning");
+    const estimasiSelesaiInput = document.getElementById("estimasi_selesai");
+    const estimasiWaktuInput = document.getElementById("estimasi_waktu");
     const form = statusPesanan.closest('form');
+
+    @if($isCancelled)
+        return;
+    @endif
+
+    function calculateEstimasiWaktu() {
+        const selectedDate = estimasiSelesaiInput.value;
+        if (!selectedDate) return;
+
+        const targetDate = new Date(selectedDate);
+        const today = new Date();
+
+        today.setHours(0, 0, 0, 0);
+        targetDate.setHours(0, 0, 0, 0);
+
+        const diffTime = targetDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 0) {
+            estimasiWaktuInput.value = `${diffDays} hari lagi`;
+        } else if (diffDays === 0) {
+            estimasiWaktuInput.value = `Hari ini`;
+        } else {
+            estimasiWaktuInput.value = `Sudah lewat / Selesai`;
+        }
+    }
+
+    if (estimasiSelesaiInput) {
+        estimasiSelesaiInput.addEventListener("change", calculateEstimasiWaktu);
+    }
 
     function handleStatusChange() {
         if (statusPesanan.value !== "diproses") {

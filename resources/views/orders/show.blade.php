@@ -30,7 +30,7 @@
 
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 items-start">
 
-        {{-- Informasi Utama --}}
+        {{-- Informasi Utama (Kolom Kiri - 2 Span) --}}
         <div class="lg:col-span-2 space-y-6">
 
             {{-- Detail Pesanan --}}
@@ -81,7 +81,6 @@
                         </span>
                     </div>
 
-                    {{-- Jumlah DP (Uang Muka) --}}
                     <div class="flex justify-between items-center py-3.5">
                         <span class="font-medium text-gray-500">Jumlah DP (Uang Muka)</span>
                         <span class="text-base font-bold text-amber-700">
@@ -89,7 +88,6 @@
                         </span>
                     </div>
 
-                    {{-- Status Pembayaran --}}
                     <div class="flex justify-between items-center py-3.5">
                         <span class="font-medium text-gray-500">Status Pembayaran</span>
                         @php
@@ -106,22 +104,32 @@
                         </span>
                     </div>
 
-                    <div class="flex justify-between items-center py-3.5 last:pb-0">
+                    <div class="flex justify-between items-center py-3.5">
                         <span class="font-medium text-gray-500">Estimasi Waktu</span>
                         <span class="font-semibold text-gray-800">
                             {{ is_array($order) ? ($order['estimasi_waktu'] ?? '-') : ($order->estimasi_waktu ?? '-') }}
                         </span>
                     </div>
+
+                    {{-- Perkiraan Tanggal Selesai --}}
+                    <div class="flex justify-between items-center py-3.5 last:pb-0">
+                        <span class="font-medium text-gray-500">Perkiraan Tanggal Selesai</span>
+                        <span class="font-bold text-[#5d4037] bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                            @php
+                                $estimasiSelesai = is_array($order) ? ($order['estimasi_selesai'] ?? null) : ($order->estimasi_selesai ?? null);
+                            @endphp
+                            {{ $estimasiSelesai ? \Carbon\Carbon::parse($estimasiSelesai)->format('d-m-Y') : 'Belum ditentukan' }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {{-- Daftar Produk Pesanan (Mendukung Multi-Item / Keranjang) --}}
+            {{-- Daftar Produk Pesanan (Mendukung Multi-Item & Multi-Gambar) --}}
             @php
                 $orderItems = is_array($order)
                     ? ($order['order_items'] ?? ($order['items'] ?? []))
                     : ($order->orderItems ?? ($order->items ?? []));
 
-                // Fallback jika data lama berbentuk single product
                 if(empty($orderItems) && (is_array($order) ? (isset($order['product']) || isset($order['nama_custom'])) : (isset($order->product) || isset($order->nama_custom)))) {
                     $orderItems = [$order];
                 }
@@ -147,13 +155,40 @@
                             $material = is_array($item) ? ($item['material'] ?? ($item['specification']['material'] ?? '-')) : ($item->material ?? ($item->specification->material ?? '-'));
                             $motif = is_array($item) ? ($item['motif_ukiran'] ?? ($item['motif'] ?? ($item['specification']['motif_ukiran'] ?? '-'))) : ($item->motif_ukiran ?? ($item->motif ?? ($item->specification->motif_ukiran ?? '-')));
                             $subtotal = is_array($item) ? ($item['subtotal'] ?? ($item['estimasi_biaya'] ?? 0)) : ($item->subtotal ?? ($item->estimasi_biaya ?? 0));
-                      @endphp
+
+                            $rawImages = [];
+                            $orderImg = is_array($order) ? ($order['gambar'] ?? null) : ($order->gambar ?? null);
+                            if ($orderImg) $rawImages[] = $orderImg;
+
+                            $itemImg = is_array($item) ? ($item['gambar'] ?? null) : ($item->gambar ?? null);
+                            if ($itemImg) $rawImages[] = $itemImg;
+
+                            $prodImg = is_array($item) ? ($item['product']['gambar'] ?? null) : ($item->product->gambar ?? null);
+                            if ($prodImg) $rawImages[] = $prodImg;
+
+                            $allImages = array_unique($rawImages);
+                        @endphp
 
                         <div class="rounded-xl border border-[#eadfd8] bg-[#faf8f5] p-4 space-y-3">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-bold text-[#3e2723] text-sm">{{ $prodName }}</h3>
-                                    <p class="text-xs text-gray-500 mt-0.5">Jumlah: <span class="font-bold text-gray-700">{{ $jumlah }} Pcs</span></p>
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    @if(count($allImages) > 0)
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            @foreach($allImages as $imgSrc)
+                                                @php
+                                                    $formattedImg = Str::startsWith($imgSrc, 'http') ? $imgSrc : asset('storage/' . str_replace('storage/', '', $imgSrc));
+                                                @endphp
+                                                <img src="{{ $formattedImg }}" alt="Produk" class="w-16 h-16 object-cover rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:scale-105 transition-transform" onclick="window.open('{{ $formattedImg }}', '_blank')" onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text=No+Image';">
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="w-16 h-16 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs font-bold">No Image</div>
+                                    @endif
+
+                                    <div>
+                                        <h3 class="font-bold text-[#3e2723] text-sm">{{ $prodName }}</h3>
+                                        <p class="text-xs text-gray-500 mt-0.5">Jumlah: <span class="font-bold text-gray-700">{{ $jumlah }} Pcs</span></p>
+                                    </div>
                                 </div>
                                 @if($subtotal > 0)
                                     <span class="text-xs font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
@@ -163,49 +198,34 @@
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-[#eadfd8]/60 text-xs">
-                                <div>
-                                    <span class="text-gray-400 font-semibold block text-[10px] uppercase">Ukuran</span>
-                                    <span class="font-medium text-gray-700">{{ $ukuran }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 font-semibold block text-[10px] uppercase">Material</span>
-                                    <span class="font-medium text-gray-700">{{ $material }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 font-semibold block text-[10px] uppercase">Motif Ukiran</span>
-                                    <span class="font-medium text-gray-700">{{ $motif }}</span>
-                                </div>
+                                <div><span class="text-gray-400 font-semibold block text-[10px] uppercase">Ukuran</span><span class="font-medium text-gray-700">{{ $ukuran }}</span></div>
+                                <div><span class="text-gray-400 font-semibold block text-[10px] uppercase">Material</span><span class="font-medium text-gray-700">{{ $material }}</span></div>
+                                <div><span class="text-gray-400 font-semibold block text-[10px] uppercase">Motif Ukiran</span><span class="font-medium text-gray-700">{{ $motif }}</span></div>
                             </div>
                         </div>
                     @empty
                         <p class="text-xs text-gray-400 italic text-center py-4">Tidak ada produk dalam pesanan ini.</p>
-                  @endforelse
+                    @endforelse
                 </div>
             </div>
-
         </div>
 
-        {{-- Sidebar --}}
+        {{-- Sidebar (Kolom Kanan - 1 Span) --}}
         <div class="space-y-6">
-
-            {{-- Pelanggan --}}
+            {{-- Data Pelanggan --}}
             <div class="rounded-2xl bg-white border border-[#eadfd8] shadow-sm p-6">
                 <div class="flex items-center space-x-3 mb-4">
-                    <div class="p-2.5 bg-[#efebe9] text-[#5d4037] rounded-xl border border-[#d7ccc8]">
-                        <span class="material-symbols-outlined text-xl">person</span>
-                    </div>
+                    <div class="p-2.5 bg-[#efebe9] text-[#5d4037] rounded-xl border border-[#d7ccc8]"><span class="material-symbols-outlined text-xl">person</span></div>
                     <h2 class="text-base font-bold text-[#3e2723]">Data Pelanggan</h2>
                 </div>
                 <div class="bg-[#faf8f5] rounded-xl p-4 border border-[#eadfd8]">
-                    @php
-                        $userData = is_array($order) ? ($order['user'] ?? null) : ($order->user ?? null);
-                    @endphp
+                    @php $userData = is_array($order) ? ($order['user'] ?? null) : ($order->user ?? null); @endphp
                     <p class="font-bold text-gray-900 text-sm">{{ is_array($userData) ? ($userData['nama'] ?? ($userData['name'] ?? '-')) : ($userData->nama ?? ($userData->name ?? '-')) }}</p>
                     <p class="mt-1 text-xs text-gray-500 font-medium">{{ is_array($userData) ? ($userData['email'] ?? '-') : ($userData->email ?? '-') }}</p>
                 </div>
             </div>
 
-            {{-- Catatan --}}
+            {{-- Catatan Produksi --}}
             <div class="rounded-2xl bg-white border border-[#eadfd8] shadow-sm p-6">
                 <h2 class="mb-3 text-base font-bold text-[#3e2723] flex items-center gap-2">
                     <span class="material-symbols-outlined text-amber-700 text-lg">description</span>
@@ -215,150 +235,7 @@
                     "{{ is_array($order) ? ($order['catatan'] ?? 'Belum ada catatan khusus untuk pesanan ini.') : ($order->catatan ?? 'Belum ada catatan khusus untuk pesanan ini.') }}"
                 </div>
             </div>
-
-            {{-- === FITUR CHAT OWNER DENGAN PELANGGAN === --}}
-            <div class="rounded-2xl bg-white border border-[#eadfd8] shadow-sm p-6 flex flex-col h-[480px]">
-                <h2 class="mb-3 text-base font-bold text-[#3e2723] flex items-center gap-2 pb-3 border-b border-[#e5ddd8]">
-                    <span class="material-symbols-outlined text-[#5d4037] text-lg">chat</span>
-                    Diskusi Pesanan
-                </h2>
-
-                {{-- Container Daftar Pesan --}}
-                <div id="owner-chat-container" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 scroll-smooth text-xs">
-                    {{-- Pesan dimuat secara dinamis via AJAX --}}
-                </div>
-
-                {{-- Form Input Pesan Owner --}}
-                <form id="owner-chat-form" class="flex gap-2 pt-3 border-t border-[#eadfd8]">
-                    @csrf
-                    <input type="text" id="owner-chat-input" placeholder="Tulis balasan..."
-                        class="flex-1 rounded-xl border-[#eadfd8] text-xs focus:border-[#5d4037] focus:ring-[#5d4037] bg-[#faf8f5]">
-                    <button type="submit" class="bg-[#5d4037] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#3e2723] transition shadow-sm">
-                        Kirim
-                    </button>
-                </form>
-            </div>
-
-            {{-- Riwayat Status --}}
-            @php
-                $historyData = is_array($order) ? ($order['status_history'] ?? []) : ($order->statusHistory ?? []);
-            @endphp
-            @if(count($historyData) > 0)
-            <div class="rounded-2xl bg-white border border-[#eadfd8] shadow-sm p-6">
-                <h2 class="mb-5 text-base font-bold text-[#3e2723]">Riwayat Status</h2>
-
-                <div class="relative pl-4 border-l-2 border-amber-900/10 space-y-6 ml-2">
-                    @foreach($historyData as $history)
-                        @php
-                            $histStatus = is_array($history) ? ($history['status'] ?? '') : ($history->status ?? '');
-                            $histKet = is_array($history) ? ($history['keterangan'] ?? null) : ($history->keterangan ?? null);
-                        @endphp
-                        <div class="relative">
-                            <span class="absolute -left-[21px] top-1 bg-[#5d4037] h-2.5 w-2.5 rounded-full ring-4 ring-white"></span>
-
-                            <p class="text-sm font-bold text-[#3e2723] leading-none">
-                                {{ ucfirst(str_replace('_', ' ', $histStatus)) }}
-                            </p>
-                            @if($histKet)
-                                <p class="mt-1.5 text-xs text-gray-500 leading-relaxed">
-                                    {{ $histKet }}
-                                </p>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
         </div>
-
     </div>
 </div>
-
-{{-- Skrip JavaScript untuk Fungsionalitas Chat Real-time / Polling Owner --}}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const orderId = {{ is_array($order) ? $order['id'] : $order->id }};
-        const currentUserId = {{ auth()->id() ?? 'null' }}; // <-- DIUBAH DI SINI
-
-        const chatContainer = document.getElementById('owner-chat-container');
-        const chatForm = document.getElementById('owner-chat-form');
-        const chatInput = document.getElementById('owner-chat-input');
-
-        function fetchMessages() {
-            fetch(`/orders/${orderId}/chats`, { // <-- DIUBAH DI SINI (HAPUS /api)
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                },
-                credentials: 'include'
-            })
-            .then(res => {
-                if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
-                return res.json();
-            })
-            .then(data => {
-                if(data.data) {
-                    chatContainer.innerHTML = '';
-                    data.data.forEach(chat => appendMessage(chat));
-                }
-            }).catch(err => console.error("Gagal memuat chat:", err));
-        }
-
-        fetchMessages();
-        setInterval(fetchMessages, 4000);
-
-        function appendMessage(chat) {
-            const isMe = Number(chat.sender_id) === Number(currentUserId);
-            const bubbleAlign = isMe ? 'ml-auto bg-[#5d4037] text-white' : 'mr-auto bg-[#faf8f5] text-[#3e2723] border border-[#eadfd8]';
-
-            let senderName = 'Pelanggan';
-            if (isMe) {
-                senderName = 'Anda';
-            } else if (chat.sender && chat.sender.name) {
-                senderName = chat.sender.name;
-            } else if (chat.sender && chat.sender.nama) {
-                senderName = chat.sender.nama;
-            }
-
-            const html = `
-                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-2">
-                    <div class="max-w-[85%] rounded-2xl px-3 py-2 text-xs ${bubbleAlign} shadow-sm">
-                        <p class="font-bold text-[9px] opacity-75 mb-0.5">${senderName}</p>
-                        <p class="leading-relaxed">${chat.message}</p>
-                    </div>
-                </div>
-            `;
-            chatContainer.insertAdjacentHTML('beforeend', html);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const message = chatInput.value.trim();
-            if(!message) return;
-
-            fetch(`/orders/${orderId}/chats`, { // <-- DIUBAH DI SINI (HAPUS /api)
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                },
-                credentials: 'include',
-                body: JSON.stringify({ message: message })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.data) {
-                    appendMessage(data.data);
-                    chatInput.value = '';
-                } else if(data.errors) {
-                    alert('Validasi gagal: ' + JSON.stringify(data.errors));
-                }
-            })
-            .catch(err => alert('Terjadi kesalahan saat mengirim pesan.'));
-        });
-    });
-</script>
 @endsection

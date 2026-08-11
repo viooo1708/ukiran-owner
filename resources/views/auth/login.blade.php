@@ -29,8 +29,15 @@
 
         <!-- Header -->
         <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-[#5d4037] rounded-2xl mx-auto flex items-center justify-center shadow-md mb-5 rotate-3 hover:rotate-0 transition-transform">
-                <span class="material-symbols-outlined text-white text-3xl">chair</span>
+            <!-- WADAH LOGO YANG DIPERBAIKI -->
+            <!-- Perubahan:
+                 1. Hapus shadow-md dari wadah luar (untuk menghindari bayangan kotak).
+                 2. Tambahkan rounded-full pada wadah luar.
+            -->
+            <div class="w-16 h-16 mx-auto flex items-center justify-center rounded-full mb-5 rotate-3 hover:rotate-0 transition-transform p-1 overflow-hidden">
+                {{-- Memanggil logo-ukir.php dari folder public --}}
+                <!-- Pertahankan: rounded-full pada gambar agar logo jpeg tampak melingkar, dan shadow-lg shadow-black/5 untuk efek bayangan lingkaran halus -->
+                <img src="{{ asset('logo-kriya-ukir.jpeg') }}" alt="Logo Kriya Ukir" class="w-full h-full object-contain rounded-full shadow-lg shadow-black/5">
             </div>
             <h1 class="text-2xl font-extrabold text-[#3e2723] tracking-tight">Selamat Datang</h1>
             <p class="text-gray-500 text-xs font-semibold mt-1">Masuk ke portal manajemen pemilik Kriya Ukir</p>

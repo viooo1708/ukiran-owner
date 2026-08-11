@@ -14,7 +14,7 @@
             <p class="text-sm sm:text-base text-gray-500 mt-1">
                 Selamat datang kembali,
                 <span class="font-bold text-[#5d4037]">
-                    {{ session('user.nama') ?? session('user.name', 'Owner') }}
+                    {{ session('user.nama') ?? session('user.name', auth()->user()->nama ?? auth()->user()->name ?? 'Owner') }}
                 </span>
             </p>
         </div>
@@ -39,25 +39,25 @@
             $cards = [
                 [
                     'title' => 'Total Pesanan',
-                    'value' => $ringkasan['total_pesanan'] ?? 0,
+                    'value' => number_format($ringkasan['total_pesanan'] ?? 0, 0, ',', '.'),
                     'icon'  => 'shopping_bag',
                     'bg'    => 'bg-amber-50 text-amber-800'
                 ],
                 [
                     'title' => 'Diproses',
-                    'value' => $ringkasan['total_diproses'] ?? 0,
+                    'value' => number_format($ringkasan['total_diproses'] ?? 0, 0, ',', '.'),
                     'icon'  => 'precision_manufacturing',
                     'bg'    => 'bg-blue-50 text-blue-800'
                 ],
                 [
                     'title' => 'Selesai',
-                    'value' => $ringkasan['total_selesai'] ?? 0,
+                    'value' => number_format($ringkasan['total_selesai'] ?? 0, 0, ',', '.'),
                     'icon'  => 'task_alt',
                     'bg'    => 'bg-emerald-50 text-emerald-800'
                 ],
                 [
                     'title' => 'Dibatalkan',
-                    'value' => $ringkasan['total_dibatalkan'] ?? 0,
+                    'value' => number_format($ringkasan['total_dibatalkan'] ?? 0, 0, ',', '.'),
                     'icon'  => 'cancel',
                     'bg'    => 'bg-rose-50 text-rose-800'
                 ],
@@ -94,7 +94,7 @@
     {{-- Main Dashboard Layout --}}
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
 
-        {{-- Tabel Pesanan Terbaru --}}
+        {{-- Tabel 10 Pesanan Terbaru --}}
         <div class="xl:col-span-2 bg-white rounded-2xl border border-[#eadfd8] shadow-sm overflow-hidden">
 
             {{-- Header Table --}}
@@ -104,7 +104,7 @@
                         Pesanan Terbaru
                     </h3>
                     <p class="text-xs text-gray-400 mt-0.5">
-                        Daftar transaksi pesanan masuk terbaru
+                        Daftar 10 transaksi pesanan masuk terbaru
                     </p>
                 </div>
                 <a href="{{ route('orders.index') }}"
@@ -119,7 +119,7 @@
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-[#faf7f4] text-gray-500 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
-                            <th class="py-3.5 px-6">ID</th>
+                            <th class="py-3.5 px-6">Kode Pesanan</th>
                             <th class="py-3.5 px-6">Pelanggan</th>
                             <th class="py-3.5 px-6">Produk</th>
                             <th class="py-3.5 px-6">Status</th>
@@ -127,17 +127,40 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        @forelse($orders as $order)
+                        @forelse(collect($orders)->take(10) as $order)
                         @php
-                            // Mengatasi data baik berupa Array maupun Object Eloquent
                             $orderId = is_array($order) ? ($order['id'] ?? '') : ($order->id ?? '');
-                            $userNama = is_array($order) ? ($order['user']['nama'] ?? '-') : ($order->user->nama ?? '-');
-                            $productNama = is_array($order) ? ($order['product']['nama_product'] ?? '-') : ($order->product->nama_product ?? '-');
-                            $statusPesanan = is_array($order) ? ($order['status_pesanan'] ?? 'menunggu') : ($order->status_pesanan ?? 'menunggu');
+                            $kodePesanan = is_array($order)
+                                ? ($order['kode_pesanan'] ?? '#' . $orderId)
+                                : ($order->kode_pesanan ?? '#' . $orderId);
+
+                            $userNama = is_array($order)
+                                ? ($order['user']['nama'] ?? $order['user']['name'] ?? 'Pelanggan')
+                                : ($order->user->nama ?? $order->user->name ?? 'Pelanggan');
+
+                            $items = is_array($order) ? ($order['order_items'] ?? []) : ($order->orderItems ?? collect());
+                            $totalItems = count($items);
+
+                            if ($totalItems > 0) {
+                                $firstItem = is_array($items) ? $items[0] : $items->first();
+                                $firstProdName = is_array($firstItem)
+                                    ? ($firstItem['product']['nama_product'] ?? $firstItem['nama_custom'] ?? 'Pesanan Kriya')
+                                    : ($firstItem->product->nama_product ?? $firstItem->nama_custom ?? 'Pesanan Kriya');
+
+                                $productNama = $firstProdName . ($totalItems > 1 ? ' (+' . ($totalItems - 1) . ' item)' : '');
+                            } else {
+                                $productNama = is_array($order)
+                                    ? ($order['product']['nama_product'] ?? 'Pesanan Kriya')
+                                    : ($order->product->nama_product ?? 'Pesanan Kriya');
+                            }
+
+                            $statusPesanan = is_array($order)
+                                ? ($order['status_pesanan'] ?? 'menunggu_konfirmasi')
+                                : ($order->status_pesanan ?? 'menunggu_konfirmasi');
                         @endphp
                         <tr class="hover:bg-[#faf7f4]/60 transition-colors">
                             <td class="py-4 px-6 font-bold text-[#5d4037]">
-                                #{{ $orderId }}
+                                {{ $kodePesanan }}
                             </td>
                             <td class="py-4 px-6 font-medium text-gray-800">
                                 {{ $userNama }}
@@ -192,12 +215,12 @@
                     @forelse($progressProduksi ?? [] as $item)
                     <div>
                         <div class="flex justify-between text-xs font-medium text-gray-600 mb-1.5">
-                            <span>{{ $item['name'] ?? 'Tahapan' }}</span>
+                            <span>Tahap {{ $item['name'] ?? 'Tahapan' }}</span>
                             <span class="font-bold text-[#5d4037]">{{ $item['value'] ?? 0 }}%</span>
                         </div>
                         <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
                             <div class="h-full bg-[#8d6e63] rounded-full transition-all duration-500"
-                                style="width: {{ $item['value'] ?? 0 }}%"></div>
+                                 style="width: {{ $item['value'] ?? 0 }}%"></div>
                         </div>
                     </div>
                     @empty
@@ -213,37 +236,42 @@
                 </h3>
 
                 <div class="relative space-y-6 before:absolute before:inset-0 before:left-5 before:w-0.5 before:bg-gray-100">
-
-                    {{-- Activity Item 1 --}}
+                    @forelse($aktivitas ?? [] as $act)
+                    @php
+                        $actTitle = is_array($act) ? ($act['title'] ?? '') : ($act->title ?? '');
+                        $actMsg = is_array($act) ? ($act['message'] ?? '') : ($act->message ?? '');
+                        $actTime = is_array($act) ? ($act['created_at'] ?? null) : ($act->created_at ?? null);
+                        $timeDiff = $actTime instanceof \Carbon\Carbon ? $actTime->diffForHumans() : ($actTime ? \Carbon\Carbon::parse($actTime)->diffForHumans() : '-');
+                    @endphp
                     <div class="relative flex items-start gap-4">
                         <div class="w-10 h-10 rounded-xl bg-[#efebe9] border border-white text-[#6d4c41] flex items-center justify-center shrink-0 z-10 shadow-sm">
-                            <span class="material-symbols-outlined text-xl">carpenter</span>
+                            <span class="material-symbols-outlined text-xl">
+                                {{ str_contains(strtolower($actTitle), 'baru') ? 'shopping_bag' : 'history_toggle_off' }}
+                            </span>
                         </div>
                         <div class="pt-0.5">
                             <p class="text-sm font-semibold text-gray-800">
-                                Pesanan baru masuk
+                                {{ $actTitle }}
                             </p>
-                            <p class="text-xs text-gray-400 mt-0.5">
-                                Menunggu konfirmasi owner
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                {{ $actMsg }}
                             </p>
+                            <span class="text-[10px] text-gray-400 mt-1 block">
+                                {{ $timeDiff }}
+                            </span>
                         </div>
                     </div>
-
-                    {{-- Activity Item 2 --}}
+                    @empty
                     <div class="relative flex items-start gap-4">
                         <div class="w-10 h-10 rounded-xl bg-[#efebe9] border border-white text-[#6d4c41] flex items-center justify-center shrink-0 z-10 shadow-sm">
-                            <span class="material-symbols-outlined text-xl">inventory_2</span>
+                            <span class="material-symbols-outlined text-xl">notifications_paused</span>
                         </div>
                         <div class="pt-0.5">
-                            <p class="text-sm font-semibold text-gray-800">
-                                Bahan baku tersedia
-                            </p>
-                            <p class="text-xs text-gray-400 mt-0.5">
-                                Stok kayu Jati terpantau aman
-                            </p>
+                            <p class="text-sm font-semibold text-gray-800">Belum ada aktivitas</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Aktivitas pesanan baru & update status akan muncul di sini.</p>
                         </div>
                     </div>
-
+                    @endforelse
                 </div>
             </div>
 
@@ -252,17 +280,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script type="module">
-    // Mendengarkan event dari Reverb
-    if (window.Echo) {
-        window.Echo.channel('orders')
-            .listen('OrderCreated', (e) => {
-                console.log('Pesanan baru terdeteksi:', e.order);
-                alert('Ada pesanan baru! Halaman akan diperbarui.');
-                window.location.reload();
-            });
-    }
-</script>
-@endpush

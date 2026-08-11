@@ -132,6 +132,7 @@ class OrderController extends Controller
             'jumlah_dp' => 'nullable|numeric|min:0',
             'status_pembayaran' => 'nullable|in:belum_bayar,dp_dibayar,lunas',
             'estimasi_waktu' => 'nullable|string|max:100',
+            'estimasi_selesai' => 'nullable|date',
             'tahap_produksi' => 'nullable|in:persiapan,pengukiran,finishing',
             'catatan'        => 'nullable|string',
         ]);
@@ -143,6 +144,7 @@ class OrderController extends Controller
                 'jumlah_dp' => $request->jumlah_dp,
                 'status_pembayaran' => $request->status_pembayaran,
                 'estimasi_waktu' => $request->estimasi_waktu,
+                'estimasi_selesai' => $request->estimasi_selesai,
                 'catatan'        => $request->catatan,
             ];
 
