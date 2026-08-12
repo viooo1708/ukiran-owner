@@ -174,36 +174,4 @@ class OrderController extends Controller
                 ->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
     }
-
-    /**
-     * Get chat via API proxy
-     */
-    public function getChats($id)
-    {
-        try {
-            $response = $this->api->get("/orders/{$id}/chats");
-            return response()->json($response->json(), $response->status());
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'API Error: ' . $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Store chat via API proxy
-     */
-    public function storeChat(Request $request, $id)
-    {
-        $request->validate([
-            'message' => 'required|string'
-        ]);
-
-        try {
-            $response = $this->api->post("/orders/{$id}/chats", [
-                'message' => $request->message
-            ]);
-            return response()->json($response->json(), $response->status());
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'API Error: ' . $e->getMessage()], 500);
-        }
-    }
 }
