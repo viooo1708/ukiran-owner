@@ -8,7 +8,7 @@
                 <div class="flex items-center gap-3.5">
                     <!-- Logo Kustom -->
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#5d4037] to-[#3e2723] flex items-center justify-center shadow-md shadow-amber-900/20 shrink-0 overflow-hidden border border-[#3e2723]/50">
-                        <img src="{{ asset('images/logo-kriya-ukir.png') }}" alt="Logo Adi Ukiran" class="w-full h-full object-cover">
+                        <img src="{{ asset('logo-kriya-ukir.jpeg') }}" alt="Logo Adi Ukiran" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <h3 class="font-bold text-base text-[#3e2723] tracking-wide">
